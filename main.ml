@@ -1,5 +1,6 @@
 open State
 
+(** testing*)
 let main () =
   ANSITerminal.print_string [ ANSITerminal.red ]
     "\n\nWelcome to the Coffee Shop.\n";
