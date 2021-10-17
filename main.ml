@@ -1,11 +1,36 @@
-open State
+(**open State*)
+
+let rec temp_in_recipe x =
+  print_endline "Temperature of coffee: 'hot' or 'cold'";
+  match read_line () with
+  | cmd when cmd = "quit" -> print_endline "Thanks for playing"
+  | cmd when cmd = "hot" || cmd =  "cold" -> print_endline "need to implement redo somehow"
+  | _ -> print_endline "Invalid input, try again"; temp_in_recipe x
+
+let rec beans_in_recipe x =
+  print_endline "Amount of beans:";
+  match read_line () with
+  | cmd when cmd = "quit" -> print_endline "Thanks for playing"
+  | number -> try let n = int_of_string number in 
+    if n >=0 then begin temp_in_recipe x end
+    else begin print_endline "Invalid number, try again"; beans_in_recipe x end 
+  with | _ -> print_endline "Invalid input, try again"; beans_in_recipe x
+
+let rec sugar_in_recipe x =
+  print_endline "Amount of sugar:";
+  match read_line () with
+  | cmd when cmd = "quit" -> print_endline "Thanks for playing"
+  | number -> try let n = int_of_string number in 
+    if n >=0 then begin beans_in_recipe x end
+    else begin print_endline "Invalid number, try again"; sugar_in_recipe x end 
+  with | _ -> print_endline "Invalid input, try again"; sugar_in_recipe x
 
 let rec milk_in_recipe x =
   print_endline "Amount of milk:";
   match read_line () with
   | x when x = "quit" -> print_endline "Thanks for playing"
   | number -> try let n = int_of_string number in 
-    if n >=0 then begin print_endline (string_of_int n) end
+    if n >=0 then begin sugar_in_recipe x end
     else begin print_endline "Invalid number, try again"; milk_in_recipe x end 
   with | _ -> print_endline "Invalid input, try again"; milk_in_recipe x
   
