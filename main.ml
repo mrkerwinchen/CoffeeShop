@@ -10,44 +10,49 @@ type coffee = {
     temp: temp;
   }
 
-let rec temp_in_recipe x =
+let rec temp_in_recipe () =
   print_endline "Temperature of coffee: 'hot' or 'cold'";
   let string_to_temp = [("hot", Hot); ("cold", Cold)] in
   match read_line () with
   | cmd when cmd = "quit" -> failwith "Thanks for playing" 
   | cmd when cmd = "hot" || cmd =  "cold" -> List.assoc cmd string_to_temp
-  | _ -> print_endline "Invalid input, try again"; temp_in_recipe x
+  | _ -> print_endline "Invalid input, try again"; temp_in_recipe ()
 
-let rec recipe_quantities item x = 
-  print_endline ("Amount of " ^ item);
+let rec recipe_quantities item = 
+  print_endline (item ^ ":");
   match read_line () with
-  | cmd when cmd = "quit" -> print_endline "Thanks for playing"; -1
+  | cmd when cmd = "quit" -> failwith "Thanks for playing" 
   | number -> try let n = int_of_string number in 
     if n >=0 then n
-    else begin print_endline "Invalid number, try again"; recipe_quantities item x end 
-  with | _ -> print_endline "Invalid input, try again"; recipe_quantities item x
+    else begin print_endline "Invalid number, try again"; recipe_quantities item end 
+  with | _ -> print_endline "Invalid input, try again"; recipe_quantities item
 
-let beans_in_recipe x =
-  recipe_quantities "beans" x
+let beans_in_recipe () =
+  recipe_quantities "Amount of beans"
 
-let sugar_in_recipe x =
-  recipe_quantities "sugar" x
+let sugar_in_recipe () =
+  recipe_quantities "Amount of sugar"
 
-let milk_in_recipe x =
-  recipe_quantities "milk" x
+let milk_in_recipe () =
+  recipe_quantities "Amount of milk" 
+
+let price_of_recipe () =
+  float_of_int (recipe_quantities "Price per cup (dollar portion)") +. 
+  float_of_int (recipe_quantities "Price per cup (cent portion)") /. 100.
 
 
 let rec create_recipe x = 
   ANSITerminal.print_string [ ANSITerminal.red ]
     "\nStep 1: Create a Recipe for the Day\n";
-  let customized_recipe = {
-    milk = milk_in_recipe x;
-    sugar = sugar_in_recipe x;
-    beans = beans_in_recipe x;
-    price = 1.;
-    temp = temp_in_recipe x;
+  let custom_recipe = {
+    milk = milk_in_recipe ();
+    sugar = sugar_in_recipe ();
+    beans = beans_in_recipe ();
+    price = price_of_recipe ();
+    temp = temp_in_recipe ();
   } in 
-  print_endline ("milk:" ^ string_of_int customized_recipe.milk);
+  print_endline ("cost: $" ^ string_of_float custom_recipe.price);
+  print_endline ("sugar: " ^ string_of_int custom_recipe.sugar);
   print_endline "your recipe is this: Type 'redo' to redo, otherwise any letter to move on";
   match read_line () with
   | cmd when cmd = "redo" -> create_recipe x
