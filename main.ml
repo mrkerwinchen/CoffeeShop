@@ -1,50 +1,58 @@
 (**open State*)
 
+type temp = Hot | Cold
+
+type coffee = {
+    milk : int;
+    sugar : int;
+    beans : int;
+    price: float;
+    temp: temp;
+  }
+
 let rec temp_in_recipe x =
   print_endline "Temperature of coffee: 'hot' or 'cold'";
+  let string_to_temp = [("hot", Hot); ("cold", Cold)] in
   match read_line () with
-  | cmd when cmd = "quit" -> print_endline "Thanks for playing"
-  | cmd when cmd = "hot" || cmd =  "cold" -> print_endline "need to implement redo somehow"
+  | cmd when cmd = "quit" -> failwith "Thanks for playing" 
+  | cmd when cmd = "hot" || cmd =  "cold" -> List.assoc cmd string_to_temp
   | _ -> print_endline "Invalid input, try again"; temp_in_recipe x
 
-let rec beans_in_recipe x =
-  print_endline "Amount of beans:";
+let rec recipe_quantities item x = 
+  print_endline ("Amount of " ^ item);
   match read_line () with
-  | cmd when cmd = "quit" -> print_endline "Thanks for playing"
+  | cmd when cmd = "quit" -> print_endline "Thanks for playing"; -1
   | number -> try let n = int_of_string number in 
-    if n >=0 then begin temp_in_recipe x end
-    else begin print_endline "Invalid number, try again"; beans_in_recipe x end 
-  with | _ -> print_endline "Invalid input, try again"; beans_in_recipe x
+    if n >=0 then n
+    else begin print_endline "Invalid number, try again"; recipe_quantities item x end 
+  with | _ -> print_endline "Invalid input, try again"; recipe_quantities item x
 
-let rec sugar_in_recipe x =
-  print_endline "Amount of sugar:";
-  match read_line () with
-  | cmd when cmd = "quit" -> print_endline "Thanks for playing"
-  | number -> try let n = int_of_string number in 
-    if n >=0 then begin beans_in_recipe x end
-    else begin print_endline "Invalid number, try again"; sugar_in_recipe x end 
-  with | _ -> print_endline "Invalid input, try again"; sugar_in_recipe x
+let beans_in_recipe x =
+  recipe_quantities "beans" x
 
-let rec milk_in_recipe x =
-  print_endline "Amount of milk:";
-  match read_line () with
-  | x when x = "quit" -> print_endline "Thanks for playing"
-  | number -> try let n = int_of_string number in 
-    if n >=0 then begin sugar_in_recipe x end
-    else begin print_endline "Invalid number, try again"; milk_in_recipe x end 
-  with | _ -> print_endline "Invalid input, try again"; milk_in_recipe x
-  
-let create_recipe x = 
+let sugar_in_recipe x =
+  recipe_quantities "sugar" x
+
+let milk_in_recipe x =
+  recipe_quantities "milk" x
+
+
+let rec create_recipe x = 
   ANSITerminal.print_string [ ANSITerminal.red ]
-<<<<<<< HEAD
-    "\n\nWelcome to Coffee Shop.\n";
-  print_endline
-    "Your goal is to make as much money as possible.\n";
-  print_string "> "
-=======
     "\nStep 1: Create a Recipe for the Day\n";
-  milk_in_recipe x
->>>>>>> e2d3add5a84aea77389e01af9eb6f70fe516064b
+  let customized_recipe = {
+    milk = milk_in_recipe x;
+    sugar = sugar_in_recipe x;
+    beans = beans_in_recipe x;
+    price = 1.;
+    temp = temp_in_recipe x;
+  } in 
+  print_endline ("milk:" ^ string_of_int customized_recipe.milk);
+  print_endline "your recipe is this: Type 'redo' to redo, otherwise any letter to move on";
+  match read_line () with
+  | cmd when cmd = "redo" -> create_recipe x
+  | _ -> print_endline "next part"
+
 
 let start_game x = create_recipe x
   
@@ -60,19 +68,3 @@ let main () =
   else print_endline "Oh no, there has been an error setting the difficulty"
 
 let () = main () 
-
-<<<<<<< HEAD
-let () = main ()
-(**
-let main () = 
-  ANSITerminal.(print_string [red] "\nWelcome to ShopTest!\n");
-  print_endline "Your goal is to make as much money as possible";
-  print_endline "For each day, you can\n- create a new coffee recipe\n- set your price for a cup of coffee\n- (re)stock your inventory";
-  print_endline "At the end of the day, you will see your profit or loss based on the consumers preferences"; 
-  print_endline "Press a enter to start";
-  match read_line () with
-  | start -> 
-  |
-let () = main () *)
-=======
->>>>>>> e2d3add5a84aea77389e01af9eb6f70fe516064b
