@@ -24,7 +24,7 @@ zip:
 
 clean:
 	dune clean
-	rm -f coffee.zip
+	rm -f coffeeshop.zip
 
 doc:
 	dune build @doc
