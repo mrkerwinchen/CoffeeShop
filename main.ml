@@ -62,7 +62,6 @@ let rec create_recipe x =
     temp = temp_in_recipe ();
   } in 
   print_endline ("cost: $" ^ string_of_float custom_recipe.price);
-  print_endline ("sugar: " ^ string_of_int custom_recipe.sugar);
   print_endline "your recipe is this:";
   print_recipe custom_recipe; 
   print_endline "Type 'redo' to redo, otherwise any letter to move on";
