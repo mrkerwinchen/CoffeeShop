@@ -45,11 +45,11 @@ let string_of_temp t =
   | Hot -> "hot"
   | Cold -> "cold"
 let print_recipe {milk; sugar; beans; price; temp;} =
-    print_endline (string_of_int milk ^ " milk" );
-    print_endline (string_of_int sugar ^ " sugar" );
-    print_endline (string_of_int beans ^ " beans" );
-    print_endline ("$" ^ string_of_float price ^ " per cup" );
-    print_endline (string_of_temp temp ^ " temperature" )
+  print_endline (string_of_int milk ^ " milk" );
+  print_endline (string_of_int sugar ^ " sugar" );
+  print_endline (string_of_int beans ^ " beans" );
+  print_endline ("$" ^ string_of_float price ^ " per cup" );
+  print_endline (string_of_temp temp ^ " temperature" )
 
 let rec create_recipe x = 
   ANSITerminal.print_string [ ANSITerminal.red ]
