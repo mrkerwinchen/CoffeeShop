@@ -40,6 +40,18 @@ let price_of_recipe () =
   float_of_int (recipe_quantities "Price per cup (dollar portion)") +. 
   float_of_int (recipe_quantities "Price per cup (cent portion)") /. 100.
 
+let string_of_temp t = 
+  match t with 
+  | Hot -> "hot"
+  | Cold -> "cold"
+let rec print_recipe x =
+  match x with 
+  | {milk = a; sugar = b; beans = c; price = d; temp = e;} -> 
+    print_endline (string_of_int a ^ " milk" );
+    print_endline (string_of_int b ^ " sugar" );
+    print_endline (string_of_int c ^ " beans" );
+    print_endline ("$" ^ string_of_float d ^ " per cup" );
+    print_endline (string_of_temp e ^ "temperature" );
 
 let rec create_recipe x = 
   ANSITerminal.print_string [ ANSITerminal.red ]
@@ -53,7 +65,8 @@ let rec create_recipe x =
   } in 
   print_endline ("cost: $" ^ string_of_float custom_recipe.price);
   print_endline ("sugar: " ^ string_of_int custom_recipe.sugar);
-  print_endline "your recipe is this: Type 'redo' to redo, otherwise any letter to move on";
+  print_endline ("your recipe is this:" ^ print_recipe custom_recipe); 
+  print_endline "Type 'redo' to redo, otherwise any letter to move on";
   match read_line () with
   | cmd when cmd = "redo" -> create_recipe x
   | _ -> print_endline "next part"
