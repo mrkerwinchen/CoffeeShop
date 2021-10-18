@@ -71,16 +71,21 @@ let rec create_recipe x =
 
 
 let start_game x = create_recipe x
-  
+
+let rec set_difficulty () = 
+  print_endline "Type a number 1 to 3 for the difficulty of the Ai with 3 being most difficult";
+  match read_line () with
+  | number -> try let x = int_of_string number in if x >= 1 && x <= 3 then start_game x 
+  else print_endline "There has been an error setting the difficulty, try again"; set_difficulty ()
+with | _ -> print_endline "There has been an error setting the difficulty, try again"; set_difficulty ()
+
 let main () = 
   ANSITerminal.(print_string [red] "\nWelcome to ShopTest!\n");
   print_endline "Your goal is to make more money than the Ai";
   print_endline "For each day, you can\n- create a new coffee recipe\n- set your price for a cup of coffee\n- (re)stock your inventory";
   print_endline "At the end of the day, you will see your profit or loss based on the consumers preferences";
   print_endline "To quit the game type 'quit'"; 
-  print_endline "Type a number 1 to 3 for the difficulty of the Ai with 3 being most difficult";
-  match read_line () with
-  | number -> let x = int_of_string number in if x >= 1 && x <= 3 then start_game x 
-  else print_endline "Oh no, there has been an error setting the difficulty"
+  set_difficulty ()
+
 
 let () = main () 
