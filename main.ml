@@ -93,7 +93,8 @@ let rec set_difficulty () =
           set_difficulty ())
 
 let main () =
-  ANSITerminal.(print_string [ red ] "\nWelcome to ShopTest!\n");
+  let _ = Sys.command "clear" in
+  ANSITerminal.(print_string [ red ] "\nWelcome to CoffeeShop!\n");
   print_endline "Your goal is to make more money than the Ai";
   print_endline
     "For each day, you can\n\
