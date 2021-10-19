@@ -1,0 +1,2 @@
+OCaml and Opam must be installed.
+ANSITerminal module needs to be installed by running opam install AnsiTerminal

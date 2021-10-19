@@ -4,24 +4,12 @@ type coffee = {
   milk : int;
   sugar : int;
   beans : int;
-  price: float;
-  temp: temp;
+  price : float;
+  temp : temp;
 }
 
-type inventory = {
-  milk : int;
-  sugar : int;
-  beans : int;
-}
+type inventory = { milk : int; sugar : int; beans : int }
 
-type customer = {
-  max_price : float;
-}
+type customer = { max_price : float }
 
-type day = {
-  cash : float;
-  inventory : inventory;
-  coffee_quantity : int;
-}
-
-
+type day = { cash : float; inventory : inventory; coffee_quantity : int }
