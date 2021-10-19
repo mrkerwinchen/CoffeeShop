@@ -81,5 +81,4 @@ let main () =
   print_endline "To quit the game type 'quit'"; 
   let x = set_difficulty () in start_game x
 
-
 let () = main () 
