@@ -1,27 +1,19 @@
-(**open State*)
+open State
 
-type temp = Hot | Cold
-
-type coffee = {
-    milk : int;
-    sugar : int;
-    beans : int;
-    price: float;
-    temp: temp;
-  }
+exception Quit of string
 
 let rec temp_in_recipe () =
   print_endline "Temperature of coffee: 'hot' or 'cold'";
   let string_to_temp = [("hot", Hot); ("cold", Cold)] in
   match read_line () with
-  | cmd when cmd = "quit" -> failwith "Thanks for playing" 
+  | cmd when cmd = "quit" -> raise (Quit "Thanks for playing") 
   | cmd when cmd = "hot" || cmd =  "cold" -> List.assoc cmd string_to_temp
   | _ -> print_endline "Invalid input, try again"; temp_in_recipe ()
 
 let rec recipe_quantities item = 
   print_endline (item ^ ":");
   match read_line () with
-  | cmd when cmd = "quit" -> failwith "Thanks for playing" 
+  | cmd when cmd = "quit" -> raise (Quit "Thanks for playing") 
   | number -> try let n = int_of_string number in 
     if n >=0 then n
     else begin print_endline "Invalid number, try again"; recipe_quantities item end 
@@ -75,9 +67,11 @@ let start_game x = create_recipe x
 let rec set_difficulty () = 
   print_endline "Type a number 1 to 3 for the difficulty of the Ai with 3 being most difficult";
   match read_line () with
-  | number -> try let x = int_of_string number in if x >= 1 && x <= 3 then start_game x 
-  else print_endline "There has been an error setting the difficulty, try again"; set_difficulty ()
-with | _ -> print_endline "There has been an error setting the difficulty, try again"; set_difficulty ()
+  | cmd when cmd = "quit" -> print_endline "Thanks for playing"; -1
+  | number -> try let x = int_of_string number in if x >= 1 && x <= 3 then x
+  else begin print_endline "There has been an error setting the difficulty, try again"; set_difficulty () end
+with | Quit _ -> print_endline "Thanks for playing"; -1
+     | _ -> print_endline "There has been an error setting the difficulty, try again"; set_difficulty ()
 
 let main () = 
   ANSITerminal.(print_string [red] "\nWelcome to ShopTest!\n");
@@ -85,7 +79,7 @@ let main () =
   print_endline "For each day, you can\n- create a new coffee recipe\n- set your price for a cup of coffee\n- (re)stock your inventory";
   print_endline "At the end of the day, you will see your profit or loss based on the consumers preferences";
   print_endline "To quit the game type 'quit'"; 
-  set_difficulty ()
+  let x = set_difficulty () in start_game x
 
 
 let () = main () 
