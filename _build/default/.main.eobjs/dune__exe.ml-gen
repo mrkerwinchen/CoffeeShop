@@ -1,6 +1,0 @@
-(** @canonical Dune__exe.Main *)
-module Main = Dune__exe__Main
-
-
-(** @canonical Dune__exe.State *)
-module State = Dune__exe__State
