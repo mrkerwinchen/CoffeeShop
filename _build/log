@@ -1,10 +1,10 @@
-# dune exec ./main.exe
+# dune build
 # OCAMLPARAM: unset
 # Workspace root: /mnt/c/Users/mrker/Desktop/Cornell/CS_3110/CoffeeShop
-$ /usr/bin/nproc > /tmp/dunedb8c41.output 2> /dev/null
+$ /usr/bin/nproc > /tmp/dune1b7d05.output 2> /dev/null
 # Auto-detected concurrency: 8
 # disable binary cache
-$ /home/kerwinchen/.opam/cs3110-2021fa/bin/ocamlc.opt -config > /tmp/dune62ff66.output
+$ /home/kerwinchen/.opam/cs3110-2021fa/bin/ocamlc.opt -config > /tmp/dune228a1f.output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
@@ -117,4 +117,13 @@ $ /home/kerwinchen/.opam/cs3110-2021fa/bin/ocamlc.opt -config > /tmp/dune62ff66.
 #      ; windows_unicode = false
 #      }
 #  }
-# Workspace root: /mnt/c/Users/mrker/Desktop/Cornell/CS_3110/CoffeeShop
+$ (cd _build/default && /home/kerwinchen/.opam/cs3110-2021fa/bin/ocamldep.opt -modules -impl authors.ml) > _build/default/.main.eobjs/authors.ml.d
+$ (cd _build/default && /home/kerwinchen/.opam/cs3110-2021fa/bin/ocamldep.opt -modules -impl main.ml) > _build/default/.main.eobjs/main.ml.d
+$ (cd _build/default && /home/kerwinchen/.opam/cs3110-2021fa/bin/ocamldep.opt -modules -impl state.ml) > _build/default/.main.eobjs/state.ml.d
+$ (cd _build/default && /home/kerwinchen/.opam/cs3110-2021fa/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -w -49 -nopervasives -nostdlib -g -bin-annot -I .main.eobjs/byte -no-alias-deps -opaque -o .main.eobjs/byte/dune__exe.cmo -c -impl .main.eobjs/dune__exe.ml-gen)
+$ (cd _build/default && /home/kerwinchen/.opam/cs3110-2021fa/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -w -49 -nopervasives -nostdlib -g -I .main.eobjs/byte -I .main.eobjs/native -intf-suffix .ml-gen -no-alias-deps -opaque -o .main.eobjs/native/dune__exe.cmx -c -impl .main.eobjs/dune__exe.ml-gen)
+$ (cd _build/default && /home/kerwinchen/.opam/cs3110-2021fa/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -bin-annot -I .main.eobjs/byte -I /home/kerwinchen/.opam/cs3110-2021fa/lib/ANSITerminal -I /home/kerwinchen/.opam/cs3110-2021fa/lib/bytes -no-alias-deps -opaque -open Dune__exe -o .main.eobjs/byte/dune__exe__State.cmo -c -impl state.ml)
+$ (cd _build/default && /home/kerwinchen/.opam/cs3110-2021fa/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -bin-annot -I .main.eobjs/byte -I /home/kerwinchen/.opam/cs3110-2021fa/lib/ANSITerminal -I /home/kerwinchen/.opam/cs3110-2021fa/lib/bytes -no-alias-deps -opaque -open Dune__exe -o .main.eobjs/byte/dune__exe__Main.cmo -c -impl main.ml)
+$ (cd _build/default && /home/kerwinchen/.opam/cs3110-2021fa/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -I .main.eobjs/byte -I .main.eobjs/native -I /home/kerwinchen/.opam/cs3110-2021fa/lib/ANSITerminal -I /home/kerwinchen/.opam/cs3110-2021fa/lib/bytes -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o .main.eobjs/native/dune__exe__State.cmx -c -impl state.ml)
+$ (cd _build/default && /home/kerwinchen/.opam/cs3110-2021fa/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -I .main.eobjs/byte -I .main.eobjs/native -I /home/kerwinchen/.opam/cs3110-2021fa/lib/ANSITerminal -I /home/kerwinchen/.opam/cs3110-2021fa/lib/bytes -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o .main.eobjs/native/dune__exe__Main.cmx -c -impl main.ml)
+$ (cd _build/default && /home/kerwinchen/.opam/cs3110-2021fa/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -o main.exe /home/kerwinchen/.opam/cs3110-2021fa/lib/ocaml/unix.cmxa -I /home/kerwinchen/.opam/cs3110-2021fa/lib/ocaml /home/kerwinchen/.opam/cs3110-2021fa/lib/ANSITerminal/ANSITerminal.cmxa -I /home/kerwinchen/.opam/cs3110-2021fa/lib/ANSITerminal .main.eobjs/native/dune__exe.cmx .main.eobjs/native/dune__exe__State.cmx .main.eobjs/native/dune__exe__Main.cmx)
