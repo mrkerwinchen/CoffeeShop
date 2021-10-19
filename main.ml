@@ -47,6 +47,7 @@ let print_recipe { milk; sugar; beans; price; temp } =
   print_endline (string_of_temp temp ^ " temperature")
 
 let rec create_recipe x =
+  let _ = Sys.command "clear" in
   ANSITerminal.print_string [ ANSITerminal.red ]
     "\nStep 1: Create a Recipe for the Day\n";
   let custom_recipe =
