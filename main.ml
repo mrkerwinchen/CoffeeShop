@@ -73,9 +73,7 @@ let rec set_difficulty () =
     "Type a number 1 to 3 for the difficulty of the Ai with 3 being most \
      difficult";
   match read_line () with
-  | cmd when cmd = "quit" ->
-      print_endline "Thanks for playing";
-      -1
+  | cmd when cmd = "quit" -> raise (Quit "Thanks for Playing")
   | number -> (
       try
         let x = int_of_string number in
@@ -84,14 +82,10 @@ let rec set_difficulty () =
           print_endline
             "There has been an error setting the difficulty, try again";
           set_difficulty ())
-      with
-      | Quit _ ->
-          print_endline "Thanks for playing";
-          -1
-      | _ ->
-          print_endline
-            "There has been an error setting the difficulty, try again";
-          set_difficulty ())
+      with _ ->
+        print_endline
+          "There has been an error setting the difficulty, try again";
+        set_difficulty ())
 
 let main () =
   let _ = Sys.command "clear" in
