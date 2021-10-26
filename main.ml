@@ -64,9 +64,62 @@ let rec create_recipe x =
   print_endline "Type 'redo' to redo, otherwise any letter to move on";
   match read_line () with
   | cmd when cmd = "redo" -> create_recipe x
-  | _ -> print_endline "next part"
+  | _ -> custom_recipe
 
-let start_game x = create_recipe x
+let rec purchase item money item_price =
+  print_endline ("you have $" ^ string_of_float !money ^ " left to spend.");
+  print_endline
+    ("Amount of " ^ item ^ " ( $" ^ string_of_float item_price ^ " per unit):");
+  match read_line () with
+  | cmd when cmd = "quit" -> raise (Quit "Thanks for playing")
+  | number -> (
+      try
+        let n = int_of_string number in
+        let cost = float_of_int n *. item_price in
+        if n >= 0 && cost < !money then (
+          print_endline
+            ("your total for " ^ item ^ " is $" ^ string_of_float cost);
+          let _ = money := !money -. cost in
+          n)
+        else (
+          print_endline
+            "Invalid number or you can't afford that much, try again";
+          purchase item money item_price)
+      with _ ->
+        print_endline "Invalid input, try again";
+        purchase item money item_price)
+
+let fill_inventory
+    ?(prices = { cups = 0.1; milk = 0.50; sugar = 0.25; beans = 0.75 })
+    (inventory : inventory) =
+  let _ = Sys.command "clear" in
+  ANSITerminal.print_string [ ANSITerminal.red ]
+    "\nStep 2: buy supplies from the inventory shop (no refunds)\n";
+  let money = ref inventory.cash in
+  let new_inv =
+    let milk = purchase "milk" money prices.milk in
+    let sugar = purchase "sugar" money prices.sugar in
+    let cups = purchase "cups" money prices.cups in
+    let beans = purchase "beans" money prices.beans in
+    { milk; sugar; cups; beans; cash = !money }
+  in
+  new_inv
+
+let initialize_state () =
+  {
+    day = 0;
+    recipe = { milk = 0; sugar = 0; beans = 0; price = 0.; temp = Hot };
+    inventory = { milk = 0; sugar = 0; beans = 0; cups = 0; cash = 50. };
+    customers = [];
+    ai = -1;
+  }
+
+let pre_day state : state =
+  let recipe = create_recipe () in
+  let inventory = fill_inventory state.inventory in
+  { state with customers = []; recipe; inventory }
+
+let rec start_game state = state |> pre_day |> start_game
 
 let rec set_difficulty () =
   print_endline
@@ -100,7 +153,7 @@ let main () =
     "At the end of the day, you will see your profit or loss based on the \
      consumers preferences";
   print_endline "To quit the game type 'quit'";
-  let x = set_difficulty () in
-  start_game x
+  let _ = set_difficulty () in
+  () |> initialize_state |> start_game
 
-let () = main ()
+let _ = main ()

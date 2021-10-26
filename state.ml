@@ -13,7 +13,14 @@ type inventory = {
   sugar : int;
   beans : int;
   cash : float;
-  cups_of_coffee : int;
+  cups : int;
+}
+
+type inventory_pricing = {
+  milk : float;
+  sugar : float;
+  beans : float;
+  cups : float;
 }
 
 type customer = { max_price : float }
