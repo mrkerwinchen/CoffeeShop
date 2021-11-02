@@ -28,10 +28,15 @@ type inventory_pricing = {
 }
 
 (* [customer] is the customer with set preference for coffee *)
-type customer = { max_price : float }
+type customer = {
+  max_price : float;
+  min_milk : int;
+  min_sugar : int;
+  min_beans : int;
+}
 
 (* [customer] is the list customer with varying preferences for coffee *)
-type customers = customer list
+type customers = customer array
 
 type day = { cash : float; inventory : inventory; coffee_quantity : int }
 

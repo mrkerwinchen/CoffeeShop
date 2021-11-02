@@ -1,4 +1,5 @@
 open State
+open Owl
 
 exception Quit of string
 
@@ -122,21 +123,68 @@ let rec fill_inventory prices (inventory : inventory) =
   | cmd when cmd = "quit" -> raise (Quit "Thanks for playing")
   | _ -> new_inv
 
+let gen_customer_list () =
+  Array.init (Stats.uniform_int_rvs ~a:10 ~b:15) (fun _ ->
+      {
+        max_price =
+          Stats.gaussian_rvs
+            ~mu:(Stats.uniform_rvs ~a:2. ~b:5.)
+            ~sigma:(Stats.uniform_rvs ~a:1. ~b:2.);
+        min_milk = Stats.uniform_int_rvs ~a:0 ~b:4;
+        min_beans = Stats.uniform_int_rvs ~a:0 ~b:4;
+        min_sugar = Stats.uniform_int_rvs ~a:0 ~b:4;
+      })
+
+let meet_requirements (customer : customer) (recipe : coffee) : bool =
+  customer.max_price > recipe.price
+  && customer.min_beans <= recipe.beans
+  && customer.min_milk <= recipe.milk
+  && customer.min_sugar <= recipe.sugar
+
 let initialize_state () =
   {
     day = 0;
     recipe = { milk = 0; sugar = 0; beans = 0; price = 0.; temp = Hot };
     inventory = { milk = 0; sugar = 0; beans = 0; cups = 0; cash = 50. };
-    customers = [];
+    customers = [||];
     ai = -1;
   }
 
 let pre_day state : state =
   let recipe = create_recipe () in
   let inventory = fill_inventory prices state.inventory in
-  { state with customers = []; recipe; inventory }
+  let customers = gen_customer_list () in
+  { state with customers; recipe; inventory }
 
-let rec start_game state = state |> pre_day |> start_game
+let start_day state : state =
+  let _ = Sys.command "clear" in
+  ANSITerminal.print_string [ ANSITerminal.red ]
+    "\nStart of day: Let's sell some coffee!\n";
+  let revenue = ref 0. in
+  let _ =
+    for cust = 0 to Array.length state.customers - 1 do
+      let customer = state.customers.(cust) in
+      let _ = Unix.sleep 1 in
+      if meet_requirements customer state.recipe then (
+        revenue := !revenue +. state.recipe.price;
+        print_endline "Customer purchased!")
+      else print_endline "Customer left without purchase"
+    done
+  in
+  let end_of_day_cash = state.inventory.cash +. !revenue in
+  let _ = print_endline "END OF DAY" in
+  let _ =
+    print_endline
+      ("you made revenue $" ^ string_of_float !revenue
+     ^ " today, with total cash now $"
+      ^ string_of_float end_of_day_cash)
+  in
+  let _ = print_endline "press any key to prepare for the next day" in
+  match read_line () with
+  | _ ->
+      { state with inventory = { state.inventory with cash = end_of_day_cash } }
+
+let rec start_game state = state |> pre_day |> start_day |> start_game
 
 let rec set_difficulty () =
   print_endline

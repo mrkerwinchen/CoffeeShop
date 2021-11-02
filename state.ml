@@ -23,9 +23,14 @@ type inventory_pricing = {
   cups : float;
 }
 
-type customer = { max_price : float }
+type customer = {
+  max_price : float;
+  min_milk : int;
+  min_sugar : int;
+  min_beans : int;
+}
 
-type customers = customer list
+type customers = customer array
 
 type day = { cash : float; inventory : inventory; coffee_quantity : int }
 
