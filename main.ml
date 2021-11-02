@@ -66,6 +66,13 @@ let rec create_recipe x =
   | cmd when cmd = "redo" -> create_recipe x
   | _ -> custom_recipe
 
+let print_inventory { milk; sugar; beans; cash; cups } =
+  print_endline ("Milk: " ^ string_of_int milk);
+  print_endline ("Sugar: " ^ string_of_int sugar);
+  print_endline ("Beans: " ^ string_of_int beans);
+  print_endline ("Cash: $" ^ string_of_float cash);
+  print_endline ("Cups: " ^ string_of_int cups)
+
 let rec purchase item money item_price =
   print_endline ("you have $" ^ string_of_float !money ^ " left to spend.");
   print_endline
@@ -89,13 +96,15 @@ let rec purchase item money item_price =
         print_endline "Invalid input, try again";
         purchase item money item_price)
 
-let fill_inventory
-    ?(prices = { cups = 0.1; milk = 0.50; sugar = 0.25; beans = 0.75 })
-    (inventory : inventory) =
+let prices = { cups = 0.1; milk = 0.50; sugar = 0.25; beans = 0.75 }
+
+let rec fill_inventory prices (inventory : inventory) =
   let _ = Sys.command "clear" in
   ANSITerminal.print_string [ ANSITerminal.red ]
-    "\nStep 2: buy supplies from the inventory shop (no refunds)\n";
+    "\nStep 2: Buy Supplies From the Inventory Shop\n";
+  let old_inv = inventory in
   let money = ref inventory.cash in
+  let old_money = !money in
   let new_inv =
     let milk = purchase "milk" money prices.milk in
     let sugar = purchase "sugar" money prices.sugar in
@@ -103,7 +112,15 @@ let fill_inventory
     let beans = purchase "beans" money prices.beans in
     { milk; sugar; cups; beans; cash = !money }
   in
-  new_inv
+  print_endline "Your new inventory is:";
+  print_inventory new_inv;
+  print_endline "Type 'redo' to redo, otherwise any letter to move on";
+  match read_line () with
+  | cmd when cmd = "redo" ->
+      let old_inv = { old_inv with cash = old_money } in
+      fill_inventory prices old_inv
+  | cmd when cmd = "quit" -> raise (Quit "Thanks for playing")
+  | _ -> new_inv
 
 let initialize_state () =
   {
@@ -116,7 +133,7 @@ let initialize_state () =
 
 let pre_day state : state =
   let recipe = create_recipe () in
-  let inventory = fill_inventory state.inventory in
+  let inventory = fill_inventory prices state.inventory in
   { state with customers = []; recipe; inventory }
 
 let rec start_game state = state |> pre_day |> start_game
