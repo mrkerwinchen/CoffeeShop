@@ -113,7 +113,13 @@ let rec fill_inventory prices (inventory : inventory) =
     let sugar = purchase "sugar" money prices.sugar in
     let cups = purchase "cups" money prices.cups in
     let beans = purchase "beans" money prices.beans in
-    { milk; sugar; cups; beans; cash = !money }
+    {
+      milk = old_inv.milk + milk;
+      sugar = old_inv.sugar + sugar;
+      cups = old_inv.cups + cups;
+      beans = old_inv.beans + beans;
+      cash = !money;
+    }
   in
   print_endline "Your new inventory is:";
   print_inventory new_inv;
