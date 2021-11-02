@@ -104,6 +104,8 @@ let rec fill_inventory prices (inventory : inventory) =
   ANSITerminal.print_string [ ANSITerminal.red ]
     "\nStep 2: Buy Supplies From the Inventory Shop\n";
   let old_inv = inventory in
+  let _ = print_endline "your current inventory is:" in
+  let _ = print_inventory old_inv in
   let money = ref inventory.cash in
   let old_money = !money in
   let new_inv =
@@ -141,6 +143,25 @@ let meet_requirements (customer : customer) (recipe : coffee) : bool =
   && customer.min_milk <= recipe.milk
   && customer.min_sugar <= recipe.sugar
 
+let enough_supplies state : bool =
+  state.inventory.milk - state.recipe.milk >= 0
+  && state.inventory.beans - state.recipe.beans >= 0
+  && state.inventory.sugar - state.recipe.sugar >= 0
+  && state.inventory.cups - 1 >= 0
+
+let purchase_coffee (state : state) =
+  {
+    state with
+    inventory =
+      {
+        state.inventory with
+        milk = state.inventory.milk - state.recipe.milk;
+        beans = state.inventory.beans - state.recipe.beans;
+        sugar = state.inventory.sugar - state.recipe.sugar;
+        cups = state.inventory.cups - 1;
+      };
+  }
+
 let initialize_state () =
   {
     day = 0;
@@ -157,6 +178,7 @@ let pre_day state : state =
   { state with customers; recipe; inventory }
 
 let start_day state : state =
+  let state_ref = ref state in
   let _ = Sys.command "clear" in
   ANSITerminal.print_string [ ANSITerminal.red ]
     "\nStart of day: Let's sell some coffee!\n";
@@ -165,9 +187,13 @@ let start_day state : state =
     for cust = 0 to Array.length state.customers - 1 do
       let customer = state.customers.(cust) in
       let _ = Unix.sleep 1 in
-      if meet_requirements customer state.recipe then (
-        revenue := !revenue +. state.recipe.price;
-        print_endline "Customer purchased!")
+
+      if meet_requirements customer state.recipe then
+        if enough_supplies !state_ref then
+          let _ = revenue := !revenue +. state.recipe.price in
+          let _ = state_ref := purchase_coffee !state_ref in
+          print_endline "Customer purchased!"
+        else print_endline "Customer wanted to buy but you're out of supplies!"
       else print_endline "Customer left without purchase"
     done
   in
@@ -182,7 +208,10 @@ let start_day state : state =
   let _ = print_endline "press any key to prepare for the next day" in
   match read_line () with
   | _ ->
-      { state with inventory = { state.inventory with cash = end_of_day_cash } }
+      {
+        !state_ref with
+        inventory = { !state_ref.inventory with cash = end_of_day_cash };
+      }
 
 let rec start_game state = state |> pre_day |> start_day |> start_game
 
