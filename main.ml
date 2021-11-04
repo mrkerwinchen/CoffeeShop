@@ -59,11 +59,10 @@ let rec create_recipe x =
       temp = temp_in_recipe ();
     }
   in
-  ANSITerminal.(print_string [ cyan ] "your recipe is this:");
+  ANSITerminal.(print_string [ cyan ] "your recipe is this:\n");
   print_recipe custom_recipe;
   ANSITerminal.(
-    print_string [ magenta ]
-      "Type 'redo' to redo, otherwise any letter to move on");
+    print_string [ magenta ] "Type 'redo' to redo, otherwise ENTER move on");
   match read_line () with
   | cmd when cmd = "redo" -> create_recipe x
   | _ -> custom_recipe
@@ -129,8 +128,7 @@ let rec fill_inventory prices (inventory : inventory) =
   ANSITerminal.(print_string [ cyan ] "Your new inventory is:\n");
   print_inventory new_inv;
   ANSITerminal.(
-    print_string [ magenta ]
-      "Type 'redo' to redo, otherwise any letter to move on");
+    print_string [ magenta ] "Type 'redo' to redo, otherwise ENTER to move on");
   match read_line () with
   | cmd when cmd = "redo" ->
       let old_inv = { old_inv with cash = old_money } in
@@ -193,31 +191,41 @@ let pre_day state : state =
 let start_day state : state =
   let state_ref = ref state in
   let _ = Sys.command "clear" in
-  ANSITerminal.(
-    print_string [ magenta ] "\nStart of day: Let's sell some coffee!\n");
+  let _ =
+    ANSITerminal.(
+      print_string [ magenta ] "\nStart of day: Let's sell some coffee!\n")
+  in
+  let _ = flush stdout in
   let revenue = ref 0. in
   let _ =
     for cust = 0 to Array.length state.customers - 1 do
       let customer = state.customers.(cust) in
       let _ = Unix.sleep 1 in
 
-      if meet_requirements customer state.recipe then
-        if enough_supplies !state_ref then
-          let _ = revenue := !revenue +. state.recipe.price in
-          let _ = state_ref := purchase_coffee !state_ref in
-          ANSITerminal.(print_string [ green ] ("Customer purchased!" ^ "\n"))
-        else
-          ANSITerminal.(
-            print_string [ yellow ]
-              ("Customer wanted to buy but you're out of supplies!" ^ "\n"))
+      (if meet_requirements customer state.recipe then
+       if enough_supplies !state_ref then
+         let _ = revenue := !revenue +. state.recipe.price in
+         let _ = state_ref := purchase_coffee !state_ref in
+         let _ =
+           ANSITerminal.(print_string [ green ] ("Customer purchased!" ^ "\n"))
+         in
+         flush stdout
+       else
+         let _ =
+           ANSITerminal.(
+             print_string [ yellow ]
+               ("Customer wanted to buy but you're out of supplies!" ^ "\n"))
+         in
+         flush stdout
       else
         ANSITerminal.(
           print_string [ Bold; red; Underlined ]
-            ("Customer left without purchase" ^ "\n"))
+            ("Customer left without purchase" ^ "\n")));
+      flush stdout
     done
   in
   let end_of_day_cash = state.inventory.cash +. !revenue in
-  let _ = ANSITerminal.(print_string [ red ] "END OF DAY") in
+  let _ = ANSITerminal.(print_string [ red ] "END OF DAY\n") in
   let _ =
     ANSITerminal.(
       print_string [ magenta ]
