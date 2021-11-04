@@ -49,8 +49,7 @@ let print_recipe { milk; sugar; beans; price; temp } =
 
 let rec create_recipe x =
   let _ = Sys.command "clear" in
-  ANSITerminal.print_string [ ANSITerminal.red ]
-    "\nStep 1: Create a Recipe for the Day\n";
+  ANSITerminal.(print_string [ cyan ] "\nStep 1: Create a Recipe for the Day\n");
   let custom_recipe =
     {
       milk = milk_in_recipe ();
@@ -60,9 +59,11 @@ let rec create_recipe x =
       temp = temp_in_recipe ();
     }
   in
-  print_endline "your recipe is this:";
+  ANSITerminal.(print_string [ cyan ] "your recipe is this:");
   print_recipe custom_recipe;
-  print_endline "Type 'redo' to redo, otherwise any letter to move on";
+  ANSITerminal.(
+    print_string [ magenta ]
+      "Type 'redo' to redo, otherwise any letter to move on");
   match read_line () with
   | cmd when cmd = "redo" -> create_recipe x
   | _ -> custom_recipe
@@ -75,7 +76,9 @@ let print_inventory { milk; sugar; beans; cash; cups } =
   print_endline ("Cups: " ^ string_of_int cups)
 
 let rec purchase item money item_price =
-  print_endline ("you have $" ^ string_of_float !money ^ " left to spend.");
+  ANSITerminal.(
+    print_string [ cyan ]
+      ("you have $" ^ string_of_float !money ^ " left to spend."));
   print_endline
     ("Amount of " ^ item ^ " ( $" ^ string_of_float item_price ^ " per unit):");
   match read_line () with
@@ -101,8 +104,8 @@ let prices = { cups = 0.1; milk = 0.50; sugar = 0.25; beans = 0.75 }
 
 let rec fill_inventory prices (inventory : inventory) =
   let _ = Sys.command "clear" in
-  ANSITerminal.print_string [ ANSITerminal.red ]
-    "\nStep 2: Buy Supplies From the Inventory Shop\n";
+  ANSITerminal.(
+    print_string [ cyan ] "\nStep 2: Buy Supplies From the Inventory Shop\n");
   let old_inv = inventory in
   let _ = print_endline "your current inventory is:" in
   let _ = print_inventory old_inv in
@@ -121,7 +124,7 @@ let rec fill_inventory prices (inventory : inventory) =
       cash = !money;
     }
   in
-  print_endline "Your new inventory is:";
+  ANSITerminal.(print_string [ cyan ] "Your new inventory is:");
   print_inventory new_inv;
   print_endline "Type 'redo' to redo, otherwise any letter to move on";
   match read_line () with
@@ -186,8 +189,8 @@ let pre_day state : state =
 let start_day state : state =
   let state_ref = ref state in
   let _ = Sys.command "clear" in
-  ANSITerminal.print_string [ ANSITerminal.red ]
-    "\nStart of day: Let's sell some coffee!\n";
+  ANSITerminal.(
+    print_string [ magenta ] "\nStart of day: Let's sell some coffee!\n");
   let revenue = ref 0. in
   let _ =
     for cust = 0 to Array.length state.customers - 1 do
@@ -198,20 +201,27 @@ let start_day state : state =
         if enough_supplies !state_ref then
           let _ = revenue := !revenue +. state.recipe.price in
           let _ = state_ref := purchase_coffee !state_ref in
-          print_endline "Customer purchased!"
-        else print_endline "Customer wanted to buy but you're out of supplies!"
-      else print_endline "Customer left without purchase"
+          ANSITerminal.(print_string [ green ] "Customer purchased!")
+        else
+          ANSITerminal.(
+            print_string [ yellow ]
+              "Customer wanted to buy but you're out of supplies!")
+      else ANSITerminal.(print_string [ red ] "Customer left without purchase")
     done
   in
   let end_of_day_cash = state.inventory.cash +. !revenue in
-  let _ = print_endline "END OF DAY" in
+  let _ = ANSITerminal.(print_string [ red ] "END OF DAY") in
   let _ =
-    print_endline
-      ("you made revenue $" ^ string_of_float !revenue
-     ^ " today, with total cash now $"
-      ^ string_of_float end_of_day_cash)
+    ANSITerminal.(
+      print_string [ magenta ]
+        ("you made revenue $" ^ string_of_float !revenue
+       ^ " today, with total cash now $"
+        ^ string_of_float end_of_day_cash))
   in
-  let _ = print_endline "press any key to prepare for the next day" in
+  let _ =
+    ANSITerminal.(
+      print_string [ cyan ] "press any key to prepare for the next day")
+  in
   match read_line () with
   | _ ->
       {
@@ -232,17 +242,19 @@ let rec set_difficulty () =
         let x = int_of_string number in
         if x >= 1 && x <= 3 then x
         else (
-          print_endline
-            "There has been an error setting the difficulty, try again";
+          ANSITerminal.(
+            print_string [ red ]
+              "There has been an error setting the difficulty, try again");
           set_difficulty ())
       with _ ->
-        print_endline
-          "There has been an error setting the difficulty, try again";
+        ANSITerminal.(
+          print_string [ red ]
+            "There has been an error setting the difficulty, try again");
         set_difficulty ())
 
 let main () =
   let _ = Sys.command "clear" in
-  ANSITerminal.(print_string [ red ] "\nWelcome to CoffeeShop!\n");
+  ANSITerminal.(print_string [ magenta ] "\nWelcome to CoffeeShop!\n");
   print_endline "Your goal is to make more money than the Ai";
   print_endline
     "For each day, you can\n\
@@ -252,7 +264,7 @@ let main () =
   print_endline
     "At the end of the day, you will see your profit or loss based on the \
      consumers preferences";
-  print_endline "To quit the game type 'quit'";
+  ANSITerminal.(print_string [ magenta ] "To quit the game type 'quit'");
   let _ = set_difficulty () in
   () |> initialize_state |> start_game
 
