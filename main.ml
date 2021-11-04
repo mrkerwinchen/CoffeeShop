@@ -201,12 +201,14 @@ let start_day state : state =
         if enough_supplies !state_ref then
           let _ = revenue := !revenue +. state.recipe.price in
           let _ = state_ref := purchase_coffee !state_ref in
-          ANSITerminal.(print_string [ green ] "Customer purchased!")
+          ANSITerminal.(print_string [ green ] ("Customer purchased!" ^ "\n"))
         else
           ANSITerminal.(
             print_string [ yellow ]
-              "Customer wanted to buy but you're out of supplies!")
-      else ANSITerminal.(print_string [ red ] "Customer left without purchase")
+              ("Customer wanted to buy but you're out of supplies!" ^ "\n"))
+      else
+        ANSITerminal.(
+          print_string [ red ] ("Customer left without purchase" ^ "\n"))
     done
   in
   let end_of_day_cash = state.inventory.cash +. !revenue in
@@ -216,7 +218,8 @@ let start_day state : state =
       print_string [ magenta ]
         ("you made revenue $" ^ string_of_float !revenue
        ^ " today, with total cash now $"
-        ^ string_of_float end_of_day_cash))
+        ^ string_of_float end_of_day_cash
+        ^ "\n"))
   in
   let _ =
     ANSITerminal.(
