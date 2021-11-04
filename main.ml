@@ -88,16 +88,18 @@ let rec purchase item money item_price =
         let n = int_of_string number in
         let cost = float_of_int n *. item_price in
         if n >= 0 && cost < !money then (
-          print_endline
-            ("your total for " ^ item ^ " is $" ^ string_of_float cost);
+          ANSITerminal.(
+            print_string [ cyan ]
+              ("your total for " ^ item ^ " is $" ^ string_of_float cost ^ "\n"));
           let _ = money := !money -. cost in
           n)
         else (
-          print_endline
-            "Invalid number or you can't afford that much, try again";
+          ANSITerminal.(
+            print_string [ red ]
+              "Invalid number or you can't afford that much, try again\n");
           purchase item money item_price)
       with _ ->
-        print_endline "Invalid input, try again";
+        ANSITerminal.(print_string [ red ] "Invalid input, try again\n");
         purchase item money item_price)
 
 let prices = { cups = 0.1; milk = 0.50; sugar = 0.25; beans = 0.75 }
@@ -107,7 +109,7 @@ let rec fill_inventory prices (inventory : inventory) =
   ANSITerminal.(
     print_string [ cyan ] "\nStep 2: Buy Supplies From the Inventory Shop\n");
   let old_inv = inventory in
-  let _ = print_endline "your current inventory is:" in
+  let _ = ANSITerminal.(print_string [ cyan ] "your current inventory is:\n") in
   let _ = print_inventory old_inv in
   let money = ref inventory.cash in
   let old_money = !money in
@@ -124,9 +126,11 @@ let rec fill_inventory prices (inventory : inventory) =
       cash = !money;
     }
   in
-  ANSITerminal.(print_string [ cyan ] "Your new inventory is:");
+  ANSITerminal.(print_string [ cyan ] "Your new inventory is:\n");
   print_inventory new_inv;
-  print_endline "Type 'redo' to redo, otherwise any letter to move on";
+  ANSITerminal.(
+    print_string [ magenta ]
+      "Type 'redo' to redo, otherwise any letter to move on");
   match read_line () with
   | cmd when cmd = "redo" ->
       let old_inv = { old_inv with cash = old_money } in
@@ -208,7 +212,8 @@ let start_day state : state =
               ("Customer wanted to buy but you're out of supplies!" ^ "\n"))
       else
         ANSITerminal.(
-          print_string [ red ] ("Customer left without purchase" ^ "\n"))
+          print_string [ Bold; red; Underlined ]
+            ("Customer left without purchase" ^ "\n"))
     done
   in
   let end_of_day_cash = state.inventory.cash +. !revenue in
@@ -223,7 +228,7 @@ let start_day state : state =
   in
   let _ =
     ANSITerminal.(
-      print_string [ cyan ] "press any key to prepare for the next day")
+      print_string [ cyan ] ("press any key to prepare for the next day" ^ "\n"))
   in
   match read_line () with
   | _ ->
@@ -247,12 +252,12 @@ let rec set_difficulty () =
         else (
           ANSITerminal.(
             print_string [ red ]
-              "There has been an error setting the difficulty, try again");
+              "There has been an error setting the difficulty, try again \n");
           set_difficulty ())
       with _ ->
         ANSITerminal.(
           print_string [ red ]
-            "There has been an error setting the difficulty, try again");
+            "There has been an error setting the difficulty, try again\n");
         set_difficulty ())
 
 let main () =
@@ -268,7 +273,7 @@ let main () =
   print_endline
     "At the end of the day, you will see your profit or loss based on the \
      consumers preferences";
-  ANSITerminal.(print_string [ magenta ] "To quit the game type 'quit'");
+  ANSITerminal.(print_string [ magenta ] "To quit the game type 'quit'\n");
   let _ = set_difficulty () in
   () |> initialize_state |> start_game
 
