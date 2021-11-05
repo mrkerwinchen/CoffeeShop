@@ -76,7 +76,7 @@ let print_inventory { milk; sugar; beans; cash; cups } =
 let rec purchase item money item_price =
   ANSITerminal.(
     print_string [ cyan ]
-      ("you have $" ^ string_of_float !money ^ " left to spend."));
+      ("you have $" ^ string_of_float !money ^ " left to spend.\n"));
   print_endline
     ("Amount of " ^ item ^ " ( $" ^ string_of_float item_price ^ " per unit):");
   match read_line () with
