@@ -1,5 +1,4 @@
 open State
-open Owl
 
 exception Quit of string
 
@@ -137,16 +136,8 @@ let rec fill_inventory prices (inventory : inventory) =
   | _ -> new_inv
 
 let gen_customer_list () =
-  Array.init (Stats.uniform_int_rvs ~a:10 ~b:15) (fun _ ->
-      {
-        max_price =
-          Stats.gaussian_rvs
-            ~mu:(Stats.uniform_rvs ~a:2. ~b:5.)
-            ~sigma:(Stats.uniform_rvs ~a:1. ~b:2.);
-        min_milk = Stats.uniform_int_rvs ~a:0 ~b:4;
-        min_beans = Stats.uniform_int_rvs ~a:0 ~b:4;
-        min_sugar = Stats.uniform_int_rvs ~a:0 ~b:4;
-      })
+  Array.init 5 (fun _ ->
+      { max_price = 5.; min_milk = 0; min_beans = 0; min_sugar = 0 })
 
 let meet_requirements (customer : customer) (recipe : coffee) : bool =
   customer.max_price > recipe.price
