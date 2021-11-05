@@ -2,6 +2,25 @@ open State
 
 exception Quit of string
 
+let runif_std () =
+  let _ = Random.self_init () in
+  Random.float 1.
+
+let rec runif ~a ~b =
+  let _ = Random.self_init () in
+  let value = Random.float b in
+  if value >= a then value else runif ~a ~b
+
+let rec runif_disc ~a ~b =
+  let _ = Random.self_init () in
+  let value = Random.int (b + 1) in
+  if value >= a then value else runif_disc ~a ~b
+
+let rnorm_std () =
+  cos (2. *. Float.pi *. runif_std ()) *. sqrt (-2. *. log (runif_std ()))
+
+let rnorm ~mu ~sigma = mu +. (sigma *. rnorm_std ())
+
 let rec temp_in_recipe () =
   print_endline "Temperature of coffee: 'hot' or 'cold'";
   let string_to_temp = [ ("hot", Hot); ("cold", Cold) ] in
@@ -136,8 +155,13 @@ let rec fill_inventory prices (inventory : inventory) =
   | _ -> new_inv
 
 let gen_customer_list () =
-  Array.init 5 (fun _ ->
-      { max_price = 5.; min_milk = 0; min_beans = 0; min_sugar = 0 })
+  Array.init (runif_disc ~a:10 ~b:15) (fun _ ->
+      {
+        max_price = rnorm ~mu:(runif ~a:2. ~b:5.) ~sigma:(runif ~a:1. ~b:2.);
+        min_milk = runif_disc ~a:0 ~b:4;
+        min_beans = runif_disc ~a:0 ~b:4;
+        min_sugar = runif_disc ~a:0 ~b:4;
+      })
 
 let meet_requirements (customer : customer) (recipe : coffee) : bool =
   customer.max_price > recipe.price
