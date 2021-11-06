@@ -47,6 +47,7 @@ type state = {
   inventory : inventory;
   customers : customers;
   ai : int;
+  revenue : float array;
 }
 
 (*

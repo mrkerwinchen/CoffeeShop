@@ -1,4 +1,5 @@
 open State
+open Matplotlib
 
 exception Quit of string
 
@@ -188,6 +189,19 @@ let purchase_coffee (state : state) =
       };
   }
 
+let cumsum (arr : float array) =
+  Array.mapi
+    (fun n _ -> n + 1 |> Array.sub arr 0 |> Array.fold_left ( +. ) 0.)
+    arr
+
+let plot_revenue ax user_revenue = Ax.plot ax user_revenue
+
+let plot_end_of_day state path =
+  let _, ax = Fig.create_with_ax () in
+  plot_revenue ax (cumsum state.revenue);
+  Mpl.savefig (path ^ "/day" ^ string_of_int state.day ^ "_rev.png");
+  state
+
 let initialize_state () =
   {
     day = 0;
@@ -195,13 +209,15 @@ let initialize_state () =
     inventory = { milk = 0; sugar = 0; beans = 0; cups = 0; cash = 50. };
     customers = [||];
     ai = -1;
+    revenue = [||];
   }
 
 let pre_day state : state =
   let recipe = create_recipe () in
   let inventory = fill_inventory prices state.inventory in
   let customers = gen_customer_list () in
-  { state with customers; recipe; inventory }
+  let day = state.day + 1 in
+  { state with customers; recipe; inventory; day }
 
 let start_day state : state =
   let state_ref = ref state in
@@ -211,6 +227,7 @@ let start_day state : state =
       print_string [ magenta ] "\nStart of day: Let's sell some coffee!\n")
   in
   let _ = flush stdout in
+  let revenue_arr = ref [||] in
   let revenue = ref 0. in
   let _ =
     for cust = 0 to Array.length state.customers - 1 do
@@ -220,12 +237,16 @@ let start_day state : state =
       (if meet_requirements customer state.recipe then
        if enough_supplies !state_ref then
          let _ = revenue := !revenue +. state.recipe.price in
+         let _ =
+           revenue_arr := Array.append !revenue_arr [| state.recipe.price |]
+         in
          let _ = state_ref := purchase_coffee !state_ref in
          let _ =
            ANSITerminal.(print_string [ green ] ("Customer purchased!" ^ "\n"))
          in
          flush stdout
        else
+         let _ = revenue_arr := Array.append !revenue_arr [| 0. |] in
          let _ =
            ANSITerminal.(
              print_string [ yellow ]
@@ -233,6 +254,7 @@ let start_day state : state =
          in
          flush stdout
       else
+        let _ = revenue_arr := Array.append !revenue_arr [| 0. |] in
         ANSITerminal.(
           print_string [ Bold; red; Underlined ]
             ("Customer left without purchase" ^ "\n")));
@@ -258,9 +280,21 @@ let start_day state : state =
       {
         !state_ref with
         inventory = { !state_ref.inventory with cash = end_of_day_cash };
+        revenue = !revenue_arr;
       }
 
-let rec start_game state = state |> pre_day |> start_day |> start_game
+let end_day state =
+  let path = "reports" in
+  let _ = plot_end_of_day state path in
+  let report_file = path ^ "/day" ^ string_of_int state.day ^ "_rev.png" in
+  let exit_code = Sys.command ("open " ^ report_file) in
+  let _ =
+    if exit_code != 0 then Sys.command ("wslview " ^ report_file) else 0
+  in
+  state
+
+let rec start_game state =
+  state |> pre_day |> start_day |> end_day |> start_game
 
 let rec set_difficulty () =
   print_endline
@@ -284,7 +318,7 @@ let rec set_difficulty () =
         set_difficulty ())
 
 let main () =
-  let _ = Sys.command "clear" in
+  let _ = Sys.command "rm -fr reports; mkdir -p reports; clear" in
   ANSITerminal.(
     print_string [ Bold; magenta; Underlined ] "\nWelcome to CoffeeShop!\n");
   print_endline "Your goal is to make more money than the Ai";
