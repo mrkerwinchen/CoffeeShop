@@ -256,8 +256,7 @@ let start_day state : state =
       else
         let _ = revenue_arr := Array.append !revenue_arr [| 0. |] in
         ANSITerminal.(
-          print_string [ Bold; red; Underlined ]
-            ("Customer left without purchase" ^ "\n")));
+          print_string [ Bold; red ] ("Customer left without purchase" ^ "\n")));
       flush stdout
     done
   in
@@ -319,12 +318,14 @@ let rec set_difficulty () =
 
 let main () =
   let _ = Sys.command "rm -fr reports; mkdir -p reports; clear" in
-  ANSITerminal.(
-    print_string [ Bold; magenta; Underlined ] "\nWelcome to CoffeeShop!\n");
+  print_string "\n ╔════════════════════════╗\n ║ ";
+  ANSITerminal.(print_string [ Bold; magenta ] "Welcome to CoffeeShop! ");
+  print_string "║ \n ╚════════════════════════╝\n";
   print_endline "Your goal is to make more money than the Ai";
   print_endline
     "For each day, you can\n\
-     - create a new coffee recipe\n\
+    \  \n\
+    \     - create a new coffee recipe\n\
      - set your price for a cup of coffee\n\
      - (re)stock your inventory";
   print_endline
