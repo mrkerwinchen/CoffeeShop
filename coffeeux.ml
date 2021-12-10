@@ -1,7 +1,7 @@
 (* open State *)
 
 let coffeecup () =
-  print_string "\n               (  )   (   )  )";
+  ANSITerminal.(print_string [ Blink ] "\n               (  )   (   )  )");
   print_string "\n                ) (   )  (  (";
   print_string "\n                ( )  (    ) )";
   print_string "\n                _____________";

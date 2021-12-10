@@ -37,6 +37,7 @@ let medium_create_recipe = temp_coffee
 
 let hard_create_recipe = temp_coffee
 
+(** testable*)
 let max_can_buy_ingr ingr_in_inv ingr_in_recipe =
   if ingr_in_recipe = 0. then float_of_int Int.max_int
   else ingr_in_inv /. ingr_in_recipe
@@ -90,6 +91,8 @@ let buy_units (inv : inventory) (ingr : string) prices num_units =
       { inv with cups = inv.cups + num_units; cash = inv.cash -. prices.cups }
   | _ -> raise (Failure "Not ingredient")
 
+(** recipe = {10 milk, 1 bean, 1 sugar}
+  inventory = {  } *)
 let rec hard_fill_inv_helper inventory prices lmt_ingr_lst recipe =
   match lmt_ingr_lst with
   | [] -> inventory
