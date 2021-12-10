@@ -1,3 +1,5 @@
+exception Quit of string
+
 (* [temp] is the temperature of the coffee. *)
 type temp = Hot | Cold
 

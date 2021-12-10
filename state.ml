@@ -1,3 +1,5 @@
+exception Quit of string
+
 type temp = Hot | Cold
 
 type coffee = {
