@@ -200,29 +200,28 @@ let ai_enough_supplies (ai_state : ai_state) : bool =
   && ai_state.ai_inventory.sugar - ai_state.ai_recipe.sugar >= 0
   && ai_state.ai_inventory.cups - 1 >= 0
 
-let ai_purchase_coffee (ai_state : ai_state) =
+let ai_purchase_coffee (ai_state : ai_state) one_coffee_cost money_gained =
   {
     ai_state with
     ai_inventory =
       {
-        ai_state.ai_inventory with
         milk = ai_state.ai_inventory.milk - ai_state.ai_recipe.milk;
         beans = ai_state.ai_inventory.beans - ai_state.ai_recipe.beans;
         sugar = ai_state.ai_inventory.sugar - ai_state.ai_recipe.sugar;
         cups = ai_state.ai_inventory.cups - 1;
+        cash = ai_state.ai_inventory.cash -. one_coffee_cost +. money_gained;
       };
   }
 
 let per_customer_rev (ai_state : ai_state) customer prices : ai_state =
   let recipe = ai_state.ai_recipe in
-  let inventory = ai_state.ai_inventory in
   let revenue_arr = ai_state.ai_revenue in
   if meet_requirements customer recipe && ai_enough_supplies ai_state then
-    let money_gained = recipe.price -. cost_of_one_coffee ai_state prices in
-    let new_st = ai_purchase_coffee ai_state in
-    let new_inv = { inventory with cash = inventory.cash +. money_gained } in
+    let one_coff_cost = cost_of_one_coffee ai_state prices in
+    let money_gained = recipe.price -. one_coff_cost in
+    let new_st = ai_purchase_coffee ai_state one_coff_cost money_gained in
     let new_arr = Array.append revenue_arr [| ai_state.ai_recipe.price |] in
-    { new_st with ai_inventory = new_inv; ai_revenue = new_arr }
+    { new_st with ai_revenue = new_arr }
   else
     let new_arr = Array.append revenue_arr [| 0. |] in
     { ai_state with ai_revenue = new_arr }
