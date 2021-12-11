@@ -50,6 +50,7 @@ type state = {
   customers : customers;
   ai : int;
   revenue : float array;
+  temp : float;
 }
 
 (*

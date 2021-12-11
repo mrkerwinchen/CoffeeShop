@@ -1,8 +1,6 @@
 open State
 open Random_gen
 open Customers
-open Start_day_functions
-open Util
 
 exception Quit of string
 
@@ -18,7 +16,7 @@ type ai_state = {
 }
 
 let int_to_difficulty ai =
-  if ai = 0 then Easy else if ai = 1 then Medium else Hard
+  if ai = 1 then Easy else if ai = 2 then Medium else Hard
 
 let temp_coffee = { milk = 0; sugar = 0; beans = 0; price = 0.; temp = Hot }
 
@@ -66,7 +64,7 @@ let buy_units (inv : inventory) (ingr : string) prices num_units =
         beans = inv.beans + num_units;
         cash = inv.cash -. prices.beans;
       }
-  | "cup" ->
+  | "cups" ->
       { inv with cups = inv.cups + num_units; cash = inv.cash -. prices.cups }
   | _ -> raise (Failure "Not ingredient")
 
@@ -109,7 +107,7 @@ let can_buy_ingr (inventory : inventory) (ingr : string) prices num_units =
   | "milk" -> inventory.cash -. (float_of_int num_units *. prices.milk) >= 0.
   | "sugar" -> inventory.cash -. (float_of_int num_units *. prices.sugar) >= 0.
   | "beans" -> inventory.cash -. (float_of_int num_units *. prices.beans) >= 0.
-  | "cup" -> inventory.cash -. (float_of_int num_units *. prices.cups) >= 0.
+  | "cups" -> inventory.cash -. (float_of_int num_units *. prices.cups) >= 0.
   | _ -> raise (Failure "Not ingredient")
 
 (*testable*)
@@ -140,13 +138,13 @@ let hard_fill_inventory (ai_state : ai_state) prices =
   buy_all_ingr ai_state prices
 
 (**[ai_init_recipe] is ai first recipe choosen by distributions*)
-let ai_init_state (state : state) : ai_state =
+let ai_init_state diff : ai_state =
   {
     ai_day = 0;
     ai_recipe = { milk = 0; sugar = 0; beans = 0; price = 0.; temp = Hot };
     ai_inventory = { milk = 0; sugar = 0; beans = 0; cups = 0; cash = 50. };
     ai_customers = [||];
-    ai = state.ai;
+    ai = diff;
     ai_revenue = [||];
   }
 
@@ -227,6 +225,6 @@ let ai_start_day (ai_state : ai_state) prices =
   let ai_st = { ai_state with ai_customers = [||]; ai_revenue = [||] } in
   day_rev ai_st prices (Array.to_list ai_state.ai_customers)
 
-let rec ai_day (ai_state : ai_state) prices =
+let ai_day (ai_state : ai_state) prices =
   let new_st = ai_pre_day ai_state prices in
   ai_start_day new_st prices

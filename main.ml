@@ -1,9 +1,11 @@
 open State
+open Random_gen
 open Coffeeux
 open Customers
 open Pre_day_functions
 open Start_day_functions
 open Report_plot
+open Ai
 
 let initialize_state () =
   {
@@ -13,16 +15,18 @@ let initialize_state () =
     customers = [||];
     ai = -1;
     revenue = [||];
+    temp = 0.;
   }
 
-let pre_day state : state =
-  let recipe = create_recipe () in
-  let inventory = fill_inventory prices state.inventory in
+let pre_day (state : state) : state =
+  let temp = runif ~a:(-20.) ~b:120. in
+  let recipe = create_recipe temp in
+  let inventory = fill_inventory prices state.inventory temp in
   let customers = gen_customer_list () in
   let day = state.day + 1 in
-  { state with customers; recipe; inventory; day }
+  { state with customers; recipe; inventory; day; temp }
 
-let start_day state : state =
+let start_day (state : state) : state =
   let state_ref = ref state in
   let _ = Sys.command "clear" in
   let _ =
@@ -32,37 +36,7 @@ let start_day state : state =
   let _ = flush stdout in
   let revenue_arr = ref [||] in
   let revenue = ref 0. in
-  let _ =
-    for cust = 0 to Array.length state.customers - 1 do
-      let customer = state.customers.(cust) in
-      let _ = Unix.sleep 1 in
-
-      (if meet_requirements customer state.recipe then
-       if enough_supplies !state_ref then
-         let _ = revenue := !revenue +. state.recipe.price in
-         let _ =
-           revenue_arr := Array.append !revenue_arr [| state.recipe.price |]
-         in
-         let _ = state_ref := purchase_coffee !state_ref in
-         let _ =
-           ANSITerminal.(print_string [ green ] ("Customer purchased!" ^ "\n"))
-         in
-         flush stdout
-       else
-         let _ = revenue_arr := Array.append !revenue_arr [| 0. |] in
-         let _ =
-           ANSITerminal.(
-             print_string [ yellow ]
-               ("Customer wanted to buy but you're out of supplies!" ^ "\n"))
-         in
-         flush stdout
-      else
-        let _ = revenue_arr := Array.append !revenue_arr [| 0. |] in
-        ANSITerminal.(
-          print_string [ Bold; red ] ("Customer left without purchase" ^ "\n")));
-      flush stdout
-    done
-  in
+  let _ = iterate_customer state_ref state revenue_arr revenue in
   let end_of_day_cash = state.inventory.cash +. !revenue in
   let _ = ANSITerminal.(print_string [ red ] "END OF DAY\n") in
   let _ =
@@ -85,18 +59,20 @@ let start_day state : state =
         revenue = !revenue_arr;
       }
 
-let end_day state =
+let end_day (ai_state : ai_state) (state : state) =
+  let new_ai = ai_day ai_state prices in
   let path = "reports" in
-  let _ = plot_end_of_day state path in
+  let _ = plot_end_of_day state new_ai path in
   let report_file = path ^ "/day" ^ string_of_int state.day ^ "_rev.png" in
   let exit_code = Sys.command ("open " ^ report_file) in
   let _ =
     if exit_code != 0 then Sys.command ("wslview " ^ report_file) else 0
   in
-  state
+  (state, new_ai)
 
-let rec start_game state =
-  state |> pre_day |> start_day |> end_day |> start_game
+let rec start_game ai_state state =
+  let new_state, new_ai = state |> pre_day |> start_day |> end_day ai_state in
+  start_game new_ai new_state
 
 let rec set_difficulty () =
   print_endline
@@ -125,7 +101,7 @@ let main () =
   ANSITerminal.(
     print_string [ magenta ]
       "To quit the game type 'quit' or ctrl + c at anytime\n");
-  let _ = set_difficulty () in
-  () |> initialize_state |> start_game
+  let diff_level = set_difficulty () in
+  () |> initialize_state |> start_game (ai_init_state diff_level)
 
 let _ = main ()

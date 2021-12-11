@@ -36,8 +36,9 @@ let price_of_recipe () =
   float_of_int (recipe_quantities "Price per cup (dollar portion)")
   +. (float_of_int (recipe_quantities "Price per cup (cent portion)") /. 100.)
 
-let rec create_recipe x =
+let rec create_recipe temp =
   let _ = Sys.command "clear" in
+  let _ = print_weather temp in
   ANSITerminal.(print_string [ cyan ] "\nStep 1: Create a Recipe for the Day\n");
   let custom_recipe =
     {
@@ -53,7 +54,7 @@ let rec create_recipe x =
   ANSITerminal.(
     print_string [ magenta ] "Type 'redo' to redo, otherwise ENTER move on");
   match read_line () with
-  | cmd when cmd = "redo" -> create_recipe x
+  | cmd when cmd = "redo" -> create_recipe temp
   | _ -> custom_recipe
 
 let rec purchase item money item_price =
@@ -85,8 +86,9 @@ let rec purchase item money item_price =
 
 let prices = { cups = 0.1; milk = 0.50; sugar = 0.25; beans = 0.75 }
 
-let rec fill_inventory prices (inventory : inventory) =
+let rec fill_inventory prices (inventory : inventory) temp =
   let _ = Sys.command "clear" in
+  let _ = print_weather temp in
   ANSITerminal.(
     print_string [ cyan ] "\nStep 2: Buy Supplies From the Inventory Shop\n");
   let old_inv = inventory in
@@ -114,6 +116,6 @@ let rec fill_inventory prices (inventory : inventory) =
   match read_line () with
   | cmd when cmd = "redo" ->
       let old_inv = { old_inv with cash = old_money } in
-      fill_inventory prices old_inv
+      fill_inventory prices old_inv temp
   | cmd when cmd = "quit" -> raise (Quit "Thanks for playing")
   | _ -> new_inv

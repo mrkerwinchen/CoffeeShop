@@ -1,4 +1,5 @@
 open State
+open Util
 
 let string_of_temp t = match t with Hot -> "hot" | Cold -> "cold"
 
@@ -15,3 +16,11 @@ let print_recipe { milk; sugar; beans; price; temp } =
   print_endline (string_of_int beans ^ " beans");
   print_endline ("$" ^ string_of_float price ^ " per cup");
   print_endline (string_of_temp temp ^ " temperature")
+
+let print_weather temp =
+  print_endline
+    ("Temperature today: "
+    ^ (temp |> round_2 |> string_of_float)
+    ^ " degrees F | "
+    ^ (temp |> fahrenheit_to_celsius |> round_2 |> string_of_float)
+    ^ " degrees C\n")
