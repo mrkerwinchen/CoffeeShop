@@ -1,10 +1,21 @@
 open State
 open Random_gen
 open Customers
+open Start_day_functions
+open Util
 
 exception Quit of string
 
 type diffculty = Easy | Medium | Hard
+
+type ai_state = {
+  day : int;
+  recipe : coffee;
+  inventory : inventory;
+  customers : customers;
+  ai : int;
+  revenue : float array;
+}
 
 let int_to_difficulty ai =
   if ai = 0 then Easy else if ai = 1 then Medium else Hard
@@ -74,20 +85,20 @@ let buy_bulk_units (inv : inventory) prices num_units =
   }
 
 (*testable*)
-let cost_of_one_coffee (ai_state : state) prices =
-  let inventory = ai_state.inventory in
-  let c_milk = float_of_int inventory.milk *. prices.milk in
-  let c_sugar = float_of_int inventory.sugar *. prices.sugar in
-  let c_beans = float_of_int inventory.beans *. prices.beans in
-  let c_cups = float_of_int inventory.cups *. prices.cups in
+let cost_of_one_coffee (ai_state : ai_state) prices =
+  let recipe = ai_state.recipe in
+  let c_milk = float_of_int recipe.milk *. prices.milk in
+  let c_sugar = float_of_int recipe.sugar *. prices.sugar in
+  let c_beans = float_of_int recipe.beans *. prices.beans in
+  let c_cups = prices.cups in
   c_milk +. c_sugar +. c_beans +. c_cups
 
 (*testable*)
-let num_coffee_can_buy ai_state prices =
+let num_coffee_can_buy (ai_state : ai_state) prices =
   int_of_float (ai_state.inventory.cash /. cost_of_one_coffee ai_state prices)
 
 (*testable*)
-let buy_all_ingr ai_state prices =
+let buy_all_ingr (ai_state : ai_state) prices =
   let inventory = ai_state.inventory in
   let num_coff = num_coffee_can_buy ai_state prices in
   buy_bulk_units inventory prices num_coff
@@ -125,10 +136,11 @@ let easy_fill_inventory state prices =
 
 let medium_fill_inventory = temp_inventory
 
-let hard_fill_inventory ai_state prices = buy_all_ingr ai_state prices
+let hard_fill_inventory (ai_state : ai_state) prices =
+  buy_all_ingr ai_state prices
 
 (**[ai_init_recipe] is ai first recipe choosen by distributions*)
-let ai_init_state state =
+let ai_init_state (state : state) : ai_state =
   {
     day = 0;
     recipe = { milk = 0; sugar = 0; beans = 0; price = 0.; temp = Hot };
@@ -138,27 +150,27 @@ let ai_init_state state =
     revenue = [||];
   }
 
-let ai_init_recipe (ai_state : state) =
+let ai_init_recipe (ai_state : ai_state) =
   match int_to_difficulty ai_state.ai with
   | Easy -> easy_init_recipe
   | Medium -> raise (Failure "Implement")
   | Hard -> hard_init_recipe
 
 (**[ai_create_recipe] is the recipe ai chooses for the day*)
-let ai_create_recipe ai_state =
+let ai_create_recipe (ai_state : ai_state) =
   match int_to_difficulty ai_state.ai with
   | Easy -> easy_create_recipe
   | Medium -> raise (Failure "Implement")
   | Hard -> hard_create_recipe
 
 (**[ai_fill_inventory] is the how ai restocks the inventory for the day*)
-let ai_fill_inventory (ai_state : state) prices =
+let ai_fill_inventory (ai_state : ai_state) prices =
   match int_to_difficulty ai_state.ai with
   | Easy -> easy_fill_inventory ai_state prices
   | Medium -> raise (Failure "Implement")
   | Hard -> hard_fill_inventory ai_state prices
 
-let ai_pre_day (ai_state : state) prices =
+let ai_pre_day (ai_state : ai_state) prices =
   let new_recipe = ai_create_recipe ai_state in
   let new_inv =
     ai_fill_inventory { ai_state with recipe = new_recipe } prices
@@ -173,6 +185,48 @@ let ai_pre_day (ai_state : state) prices =
     customers;
   }
 
-let ai_start_day ai_state prices = "a"
+let ai_enough_supplies (ai_state : ai_state) : bool =
+  ai_state.inventory.milk - ai_state.recipe.milk >= 0
+  && ai_state.inventory.beans - ai_state.recipe.beans >= 0
+  && ai_state.inventory.sugar - ai_state.recipe.sugar >= 0
+  && ai_state.inventory.cups - 1 >= 0
 
-let rec ai_day ai_state prices = ai_pre_day ai_state prices
+let ai_purchase_coffee (ai_state : ai_state) =
+  {
+    ai_state with
+    inventory =
+      {
+        ai_state.inventory with
+        milk = ai_state.inventory.milk - ai_state.recipe.milk;
+        beans = ai_state.inventory.beans - ai_state.recipe.beans;
+        sugar = ai_state.inventory.sugar - ai_state.recipe.sugar;
+        cups = ai_state.inventory.cups - 1;
+      };
+  }
+
+let per_customer_rev (ai_state : ai_state) customer prices : ai_state =
+  let recipe = ai_state.recipe in
+  let inventory = ai_state.inventory in
+  let revenue_arr = ai_state.revenue in
+  if meet_requirements customer recipe && ai_enough_supplies ai_state then
+    let money_gained = recipe.price -. cost_of_one_coffee ai_state prices in
+    let new_st = ai_purchase_coffee ai_state in
+    let new_inv = { inventory with cash = inventory.cash +. money_gained } in
+    let new_arr = Array.append revenue_arr [| ai_state.recipe.price |] in
+    { new_st with inventory = new_inv; revenue = new_arr }
+  else
+    let new_arr = Array.append revenue_arr [| 0. |] in
+    { ai_state with revenue = new_arr }
+
+let rec day_rev (ai_state : ai_state) prices customer_lst =
+  match customer_lst with
+  | [] -> ai_state
+  | h :: t -> day_rev (per_customer_rev ai_state h prices) prices t
+
+let ai_start_day (ai_state : ai_state) prices =
+  let ai_st = { ai_state with customers = [||]; revenue = [||] } in
+  day_rev ai_st prices (Array.to_list ai_state.customers)
+
+let rec ai_day (ai_state : ai_state) prices =
+  let new_st = ai_pre_day ai_state prices in
+  ai_start_day new_st prices
