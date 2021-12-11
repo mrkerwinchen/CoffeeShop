@@ -143,7 +143,7 @@ let ai_init_state diff : ai_state =
   {
     ai_day = 0;
     ai_recipe = { milk = 0; sugar = 0; beans = 0; price = 0.; temp = Hot };
-    ai_inventory = { milk = 0; sugar = 0; beans = 0; cups = 0; cash = 50. };
+    ai_inventory = { milk = 0; sugar = 0; beans = 0; cups = 0; cash = 100. };
     ai_customers = [||];
     ai = diff;
     ai_revenue = [||];
@@ -170,12 +170,12 @@ let ai_fill_inventory (ai_state : ai_state) prices =
   | Medium -> raise (Failure "Implement")
   | Hard -> hard_fill_inventory ai_state prices
 
-let ai_pre_day (ai_state : ai_state) prices =
+let ai_pre_day (ai_state : ai_state) prices (temp : float) =
   let new_recipe = ai_create_recipe ai_state in
   let new_inv =
     ai_fill_inventory { ai_state with ai_recipe = new_recipe } prices
   in
-  let customers = gen_customer_list () in
+  let customers = gen_customer_list temp in
   let new_day = ai_state.ai_day + 1 in
   {
     ai_state with
@@ -183,6 +183,7 @@ let ai_pre_day (ai_state : ai_state) prices =
     ai_recipe = new_recipe;
     ai_inventory = new_inv;
     ai_customers = customers;
+    ai_temperature = temp;
   }
 
 let ai_enough_supplies (ai_state : ai_state) : bool =
@@ -227,6 +228,6 @@ let ai_start_day (ai_state : ai_state) prices =
   let ai_st = { ai_state with ai_customers = [||]; ai_revenue = [||] } in
   day_rev ai_st prices (Array.to_list ai_state.ai_customers)
 
-let ai_day (ai_state : ai_state) prices =
-  let new_st = ai_pre_day ai_state prices in
+let ai_day (ai_state : ai_state) prices temp =
+  let new_st = ai_pre_day ai_state prices temp in
   ai_start_day new_st prices
