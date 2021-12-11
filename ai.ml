@@ -52,21 +52,29 @@ let hard_create_recipe = hard_init_recipe
 let buy_units (inv : inventory) (ingr : string) prices num_units =
   match ingr with
   | "milk" ->
-      { inv with milk = inv.milk + num_units; cash = inv.cash -. prices.milk }
+      {
+        inv with
+        milk = inv.milk + num_units;
+        cash = inv.cash -. (float_of_int num_units *. prices.milk);
+      }
   | "sugar" ->
       {
         inv with
         sugar = inv.sugar + num_units;
-        cash = inv.cash -. prices.sugar;
+        cash = inv.cash -. (float_of_int num_units *. prices.sugar);
       }
   | "beans" ->
       {
         inv with
         beans = inv.beans + num_units;
-        cash = inv.cash -. prices.beans;
+        cash = inv.cash -. (float_of_int num_units *. prices.beans);
       }
   | "cups" ->
-      { inv with cups = inv.cups + num_units; cash = inv.cash -. prices.cups }
+      {
+        inv with
+        cups = inv.cups + num_units;
+        cash = inv.cash -. (float_of_int num_units *. prices.cups);
+      }
   | _ -> raise (Failure "Not ingredient")
 
 (*testable*)
