@@ -13,6 +13,7 @@ type ai_state = {
   ai_customers : customers;
   ai : int;
   ai_revenue : float array;
+  ai_temperature : float;
 }
 
 let int_to_difficulty ai =
@@ -146,6 +147,7 @@ let ai_init_state diff : ai_state =
     ai_customers = [||];
     ai = diff;
     ai_revenue = [||];
+    ai_temperature = 0.;
   }
 
 let ai_init_recipe (ai_state : ai_state) =
