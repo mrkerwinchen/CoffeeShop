@@ -47,9 +47,12 @@ let start_day (state : state) : state =
         ^ string_of_float end_of_day_cash
         ^ "\n"))
   in
+  let _ = print_endline "Your barista made a summary report for you..." in
   let _ =
     ANSITerminal.(
-      print_string [ cyan ] ("press any key to prepare for the next day" ^ "\n"))
+      print_string [ cyan ]
+        ("press any key to view end-of-day report and prepare for the next day"
+       ^ "\n"))
   in
   match read_line () with
   | _ ->
