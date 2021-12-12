@@ -60,6 +60,11 @@ let max_coffee_can_sell (ai_state : ai_state) prices =
   let lst = List.sort min [ m_milk; m_sugar; m_beans; m_cups ] in
   List.hd lst
 
+let max_profit_per_day (ai_state : ai_state) prices =
+  let num_coff = max_coffee_can_sell ai_state prices in
+  let prof_per_cup = profit_per_cup ai_state prices in
+  float_of_int num_coff *. prof_per_cup
+
 let easy_init_recipe : coffee =
   let easy_runif = runif_disc ~a:1 ~b:5 in
   let recipe =
@@ -91,9 +96,18 @@ let hard_init_recipe : coffee =
 
 let easy_create_recipe = easy_init_recipe
 
-let medium_create_recipe = raise (Failure "Implement")
+let medium_create_recipe = "a"
 
 let hard_create_recipe = hard_init_recipe
+
+(*testable*)
+let can_buy_ingr (inventory : inventory) (ingr : string) prices num_units =
+  match ingr with
+  | "milk" -> inventory.cash -. (float_of_int num_units *. prices.milk) >= 0.
+  | "sugar" -> inventory.cash -. (float_of_int num_units *. prices.sugar) >= 0.
+  | "beans" -> inventory.cash -. (float_of_int num_units *. prices.beans) >= 0.
+  | "cups" -> inventory.cash -. (float_of_int num_units *. prices.cups) >= 0.
+  | _ -> raise (Failure "Not ingredient")
 
 (*testable*)
 let buy_idv_units (inv : inventory) (ingr : string) prices num_units =
@@ -143,15 +157,6 @@ let buy_all_ingr (ai_state : ai_state) prices =
   let inventory = ai_state.ai_inventory in
   let num_coff = max_coffee_can_buy ai_state prices in
   buy_bulk_units inventory prices num_coff
-
-(*testable*)
-let can_buy_ingr (inventory : inventory) (ingr : string) prices num_units =
-  match ingr with
-  | "milk" -> inventory.cash -. (float_of_int num_units *. prices.milk) >= 0.
-  | "sugar" -> inventory.cash -. (float_of_int num_units *. prices.sugar) >= 0.
-  | "beans" -> inventory.cash -. (float_of_int num_units *. prices.beans) >= 0.
-  | "cups" -> inventory.cash -. (float_of_int num_units *. prices.cups) >= 0.
-  | _ -> raise (Failure "Not ingredient")
 
 let rec easy_fill_inv_helper inventory prices num_fails =
   if num_fails > 10 then inventory
