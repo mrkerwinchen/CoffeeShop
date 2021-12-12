@@ -19,6 +19,7 @@ type inventory = {
   beans : int;
   cash : float;
   cups : int;
+  total_expense : float;
 }
 
 (* [inventory_pricing] is the price of ingredients, coffee, and cash. *)
@@ -35,6 +36,7 @@ type customer = {
   min_milk : int;
   min_sugar : int;
   min_beans : int;
+  desired_temp : temp;
 }
 
 (* [customer] is the list customer with varying preferences for coffee *)

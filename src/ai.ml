@@ -6,6 +6,10 @@ exception Quit of string
 
 type difficulty = Easy | Medium | Hard
 
+let ai_names = [ (1, "Silly Sam"); (2, "Modest Missy"); (3, "Gifted Grandma") ]
+
+let ai_nicknames = [ (1, "SS"); (2, "MM"); (3, "GG") ]
+
 type ai_state = {
   ai_day : int;
   ai_recipe : coffee;
@@ -154,6 +158,7 @@ let buy_bulk_units (inv : inventory) prices num_units =
     beans = inv.beans + num_units;
     cups = inv.cups + num_units;
     cash = inv.cash -. total_cost;
+    total_expense = total_cost;
   }
 
 (*testable*)
@@ -186,7 +191,15 @@ let ai_init_state diff : ai_state =
   {
     ai_day = 0;
     ai_recipe = { milk = 0; sugar = 0; beans = 0; price = 0.; temp = Hot };
-    ai_inventory = { milk = 0; sugar = 0; beans = 0; cups = 0; cash = 100. };
+    ai_inventory =
+      {
+        milk = 0;
+        sugar = 0;
+        beans = 0;
+        cups = 0;
+        cash = 100.;
+        total_expense = 0.;
+      };
     ai_customers = [||];
     ai = diff;
     ai_revenue = [||];
@@ -240,6 +253,7 @@ let ai_purchase_coffee (ai_state : ai_state) one_coffee_cost money_gained =
     ai_state with
     ai_inventory =
       {
+        ai_state.ai_inventory with
         milk = ai_state.ai_inventory.milk - ai_state.ai_recipe.milk;
         beans = ai_state.ai_inventory.beans - ai_state.ai_recipe.beans;
         sugar = ai_state.ai_inventory.sugar - ai_state.ai_recipe.sugar;

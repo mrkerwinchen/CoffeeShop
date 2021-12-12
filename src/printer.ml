@@ -1,4 +1,5 @@
 open State
+open Ai
 open Util
 
 let string_of_temp t = match t with Hot -> "hot" | Cold -> "cold"
@@ -24,3 +25,11 @@ let print_weather temp =
     ^ " degrees F | "
     ^ (temp |> fahrenheit_to_celsius |> round_2 |> string_of_float)
     ^ " degrees C\n")
+
+let string_of_ai_name (ai_state : ai_state) : string =
+  let ai_level = ai_state.ai in
+  List.assoc ai_level ai_names
+
+let string_of_ai_nickname (ai_state : ai_state) : string =
+  let ai_level = ai_state.ai in
+  List.assoc ai_level ai_nicknames

@@ -16,6 +16,7 @@ type inventory = {
   beans : int;
   cash : float;
   cups : int;
+  total_expense : float;
 }
 
 type inventory_pricing = {
@@ -30,6 +31,7 @@ type customer = {
   min_milk : int;
   min_sugar : int;
   min_beans : int;
+  desired_temp : temp;
 }
 
 type customers = customer array

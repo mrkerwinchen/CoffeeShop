@@ -107,12 +107,13 @@ let rec fill_inventory prices (inventory : inventory) temp =
       cups = old_inv.cups + cups;
       beans = old_inv.beans + beans;
       cash = !money;
+      total_expense = old_inv.total_expense +. (old_money -. !money);
     }
   in
   ANSITerminal.(print_string [ cyan ] "Your new inventory is:\n");
   print_inventory new_inv;
   ANSITerminal.(
-    print_string [ magenta ] "Type 'redo' to redo, otherwise ENTER to move on");
+    print_string [ magenta ] "Type 'redo' to redo, otherwise ENTER to move on: ");
   match read_line () with
   | cmd when cmd = "redo" ->
       let old_inv = { old_inv with cash = old_money } in

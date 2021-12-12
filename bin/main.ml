@@ -7,12 +7,21 @@ open Pre_day_functions
 open Start_day_functions
 open Report_plot
 open Ai
+open Util
 
 let initialize_state () =
   {
     day = 0;
     recipe = { milk = 0; sugar = 0; beans = 0; price = 0.; temp = Hot };
-    inventory = { milk = 0; sugar = 0; beans = 0; cups = 0; cash = 100. };
+    inventory =
+      {
+        milk = 0;
+        sugar = 0;
+        beans = 0;
+        cups = 0;
+        cash = 100.;
+        total_expense = 0.;
+      };
     customers = [||];
     ai = -1;
     revenue = [||];
@@ -67,6 +76,16 @@ let end_day (ai_state : ai_state) (state : state) =
   let new_ai = ai_day ai_state prices state.temp in
   let path = "reports" in
   let _ = plot_end_of_day state new_ai path in
+  let state =
+    {
+      state with
+      inventory =
+        {
+          state.inventory with
+          total_expense = state.inventory.total_expense -. sum_arr state.revenue;
+        };
+    }
+  in
   let report_file = path ^ "/day" ^ string_of_int state.day ^ "_rev.png" in
   let exit_code = Sys.command ("open " ^ report_file) in
   let _ =
