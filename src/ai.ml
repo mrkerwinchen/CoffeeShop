@@ -94,7 +94,11 @@ let medium_init_recipe temp : coffee =
 let hard_init_recipe : coffee =
   { milk = 4; sugar = 4; beans = 4; price = 3.5; temp = Hot }
 
-let easy_create_recipe = easy_init_recipe
+let easy_create_recipe ai_state prices =
+  let old_recipe = easy_init_recipe in
+  let r_profit_cup = rnorm ~mu:0.5 ~sigma:0.25 in
+  let new_price = cost_of_one_coffee ai_state prices +. r_profit_cup in
+  { old_recipe with price = new_price }
 
 let medium_create_recipe = "a"
 
@@ -196,9 +200,9 @@ let ai_init_recipe (ai_state : ai_state) =
   | Hard -> hard_init_recipe
 
 (**[ai_create_recipe] is the recipe ai chooses for the day*)
-let ai_create_recipe (ai_state : ai_state) =
+let ai_create_recipe (ai_state : ai_state) prices =
   match int_to_difficulty ai_state.ai with
-  | Easy -> easy_create_recipe
+  | Easy -> easy_create_recipe ai_state prices
   | Medium -> raise (Failure "Implement")
   | Hard -> hard_create_recipe
 
@@ -210,7 +214,7 @@ let ai_fill_inventory (ai_state : ai_state) prices =
   | Hard -> hard_fill_inventory ai_state prices
 
 let ai_pre_day (ai_state : ai_state) prices (temp : float) =
-  let new_recipe = ai_create_recipe ai_state in
+  let new_recipe = ai_create_recipe ai_state prices in
   let new_inv =
     ai_fill_inventory { ai_state with ai_recipe = new_recipe } prices
   in
