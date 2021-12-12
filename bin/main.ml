@@ -1,3 +1,4 @@
+open Game
 open State
 open Random_gen
 open Coffeeux

@@ -1,5 +1,5 @@
 open OUnit2
-open Main
+open Game
 open State
 
 let coffee1 = { milk = 3; sugar = 2; beans = 4; price = 4.3; temp = Hot }
