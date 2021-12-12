@@ -84,7 +84,7 @@ let rec purchase item money item_price =
         ANSITerminal.(print_string [ red ] "Invalid input, try again\n");
         purchase item money item_price)
 
-let prices = { cups = 0.1; milk = 0.50; sugar = 0.25; beans = 0.75 }
+let prices = { cups = 0.05; milk = 0.15; sugar = 0.1; beans = 0.25 }
 
 let rec fill_inventory prices (inventory : inventory) temp =
   let _ = Sys.command "clear" in

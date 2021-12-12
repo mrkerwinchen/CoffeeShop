@@ -4,7 +4,7 @@ open Customers
 
 exception Quit of string
 
-type diffculty = Easy | Medium | Hard
+type difficulty = Easy | Medium | Hard
 
 type ai_state = {
   ai_day : int;
@@ -17,15 +17,51 @@ type ai_state = {
 }
 
 let int_to_difficulty ai =
-  if ai = 1 then Easy else if ai = 2 then Medium else Hard
+  match ai with
+  | 1 -> Easy
+  | 2 -> Medium
+  | 3 -> Hard
+  | _ -> raise (Failure "Not a difficulty level")
 
-let temp_coffee = { milk = 0; sugar = 0; beans = 0; price = 0.; temp = Hot }
+(*testable*)
+let int_to_ingr r_int =
+  match r_int with
+  | 0 -> "milk"
+  | 1 -> "sugar"
+  | 2 -> "beans"
+  | 3 -> "cups"
+  | _ -> raise (Failure "Not Valid Ingr")
 
-let temp_inventory = { milk = 0; sugar = 0; beans = 0; cups = 0; cash = 50. }
+(*testable*)
+let cost_of_one_coffee (ai_state : ai_state) prices =
+  let recipe = ai_state.ai_recipe in
+  let c_milk = float_of_int recipe.milk *. prices.milk in
+  let c_sugar = float_of_int recipe.sugar *. prices.sugar in
+  let c_beans = float_of_int recipe.beans *. prices.beans in
+  let c_cups = prices.cups in
+  c_milk +. c_sugar +. c_beans +. c_cups
 
-let easy_runif = runif_disc ~a:1 ~b:5
+(*testable*)
+let max_coffee_can_buy (ai_state : ai_state) prices =
+  int_of_float (ai_state.ai_inventory.cash /. cost_of_one_coffee ai_state prices)
+
+let profit_per_cup (ai_state : ai_state) prices =
+  let cost_one_coff = cost_of_one_coffee ai_state prices in
+  let rev_one_cup = ai_state.ai_recipe.price in
+  rev_one_cup -. cost_one_coff
+
+let max_coffee_can_sell (ai_state : ai_state) prices =
+  let recp = ai_state.ai_recipe in
+  let inv = ai_state.ai_inventory in
+  let m_milk = inv.milk / recp.milk in
+  let m_sugar = inv.sugar / recp.sugar in
+  let m_beans = inv.beans / recp.beans in
+  let m_cups = inv.beans / recp.beans in
+  let lst = List.sort min [ m_milk; m_sugar; m_beans; m_cups ] in
+  List.hd lst
 
 let easy_init_recipe : coffee =
+  let easy_runif = runif_disc ~a:1 ~b:5 in
   let recipe =
     {
       milk = easy_runif;
@@ -37,19 +73,30 @@ let easy_init_recipe : coffee =
   in
   if runif_disc ~a:0 ~b:1 = 0 then { recipe with temp = Cold } else recipe
 
-let medium_init_recipe : coffee = temp_coffee
+let medium_init_recipe temp : coffee =
+  let med_runif = runif_disc ~a:2 ~b:4 in
+  let recipe =
+    {
+      milk = med_runif;
+      sugar = med_runif;
+      beans = med_runif;
+      price = runif ~a:2. ~b:4.;
+      temp = Hot;
+    }
+  in
+  if temp > 50. then { recipe with temp = Cold } else recipe
 
 let hard_init_recipe : coffee =
-  { milk = 4; sugar = 4; beans = 4; price = 2.; temp = Hot }
+  { milk = 4; sugar = 4; beans = 4; price = 3.5; temp = Hot }
 
 let easy_create_recipe = easy_init_recipe
 
-let medium_create_recipe = temp_coffee
+let medium_create_recipe = raise (Failure "Implement")
 
 let hard_create_recipe = hard_init_recipe
 
 (*testable*)
-let buy_units (inv : inventory) (ingr : string) prices num_units =
+let buy_idv_units (inv : inventory) (ingr : string) prices num_units =
   match ingr with
   | "milk" ->
       {
@@ -92,22 +139,9 @@ let buy_bulk_units (inv : inventory) prices num_units =
   }
 
 (*testable*)
-let cost_of_one_coffee (ai_state : ai_state) prices =
-  let recipe = ai_state.ai_recipe in
-  let c_milk = float_of_int recipe.milk *. prices.milk in
-  let c_sugar = float_of_int recipe.sugar *. prices.sugar in
-  let c_beans = float_of_int recipe.beans *. prices.beans in
-  let c_cups = prices.cups in
-  c_milk +. c_sugar +. c_beans +. c_cups
-
-(*testable*)
-let num_coffee_can_buy (ai_state : ai_state) prices =
-  int_of_float (ai_state.ai_inventory.cash /. cost_of_one_coffee ai_state prices)
-
-(*testable*)
 let buy_all_ingr (ai_state : ai_state) prices =
   let inventory = ai_state.ai_inventory in
-  let num_coff = num_coffee_can_buy ai_state prices in
+  let num_coff = max_coffee_can_buy ai_state prices in
   buy_bulk_units inventory prices num_coff
 
 (*testable*)
@@ -119,29 +153,21 @@ let can_buy_ingr (inventory : inventory) (ingr : string) prices num_units =
   | "cups" -> inventory.cash -. (float_of_int num_units *. prices.cups) >= 0.
   | _ -> raise (Failure "Not ingredient")
 
-(*testable*)
-let int_to_ingr r_int =
-  match r_int with
-  | 0 -> "milk"
-  | 1 -> "sugar"
-  | 2 -> "beans"
-  | 3 -> "cups"
-  | _ -> raise (Failure "Not Valid Int")
-
 let rec easy_fill_inv_helper inventory prices num_fails =
   if num_fails > 10 then inventory
   else
     let r_ingr = int_to_ingr (runif_disc ~a:0 ~b:3) in
     let r_num_units = runif_disc ~a:1 ~b:20 in
     if can_buy_ingr inventory r_ingr prices r_num_units then
-      let new_inv = buy_units inventory r_ingr prices r_num_units in
+      let new_inv = buy_idv_units inventory r_ingr prices r_num_units in
       easy_fill_inv_helper new_inv prices num_fails
     else easy_fill_inv_helper inventory prices (num_fails + 1)
 
 let easy_fill_inventory (ai_state : ai_state) prices =
   easy_fill_inv_helper ai_state.ai_inventory prices 0
 
-let medium_fill_inventory = temp_inventory
+let medium_fill_inventory (ai_state : ai_state) prices =
+  buy_all_ingr ai_state prices
 
 let hard_fill_inventory (ai_state : ai_state) prices =
   buy_all_ingr ai_state prices
@@ -161,7 +187,7 @@ let ai_init_state diff : ai_state =
 let ai_init_recipe (ai_state : ai_state) =
   match int_to_difficulty ai_state.ai with
   | Easy -> easy_init_recipe
-  | Medium -> raise (Failure "Implement")
+  | Medium -> medium_init_recipe ai_state.ai_temperature
   | Hard -> hard_init_recipe
 
 (**[ai_create_recipe] is the recipe ai chooses for the day*)
@@ -175,7 +201,7 @@ let ai_create_recipe (ai_state : ai_state) =
 let ai_fill_inventory (ai_state : ai_state) prices =
   match int_to_difficulty ai_state.ai with
   | Easy -> easy_fill_inventory ai_state prices
-  | Medium -> raise (Failure "Implement")
+  | Medium -> medium_fill_inventory ai_state prices
   | Hard -> hard_fill_inventory ai_state prices
 
 let ai_pre_day (ai_state : ai_state) prices (temp : float) =
