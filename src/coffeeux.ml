@@ -1,5 +1,3 @@
-(* open State *)
-
 let coffeecup () =
   ANSITerminal.(print_string [ Blink ] "\n               (  )   (   )  )");
   print_string "\n                ) (   )  (  (";
@@ -8,10 +6,10 @@ let coffeecup () =
   print_string "\n               <_____________> ___";
   print_string "\n               |             |/ _ \\";
   print_string "\n               | ";
-  ANSITerminal.(print_string [ Bold; magenta ] " Welcome to ");
+  ANSITerminal.(print_string [ Bold; cyan ] " Welcome to ");
   print_string "  | | |";
   print_string "\n               | ";
-  ANSITerminal.(print_string [ Bold; magenta ] " CoffeeShop!");
+  ANSITerminal.(print_string [ Bold; cyan ] " CoffeeShop!");
   print_string "  |_| |";
   print_string "\n               |             |\\___/";
   print_string "\n               \\_____________/    \n";

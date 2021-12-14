@@ -19,12 +19,14 @@ let print_recipe { milk; sugar; beans; price; temp } =
   print_endline (string_of_temp temp ^ " temperature")
 
 let print_weather temp =
+  print_string "╔═════════════════════════════════════════════════════╗\n";
   print_endline
-    ("Temperature today: "
+    ("║ Temperature today: "
     ^ (temp |> round_2 |> string_of_float)
     ^ " degrees F | "
     ^ (temp |> fahrenheit_to_celsius |> round_2 |> string_of_float)
-    ^ " degrees C\n")
+    ^ " degrees C ║");
+  print_string "╚═════════════════════════════════════════════════════╝"
 
 let string_of_ai_name (ai_state : ai_state) : string =
   let ai_level = ai_state.ai in

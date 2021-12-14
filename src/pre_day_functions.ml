@@ -39,7 +39,11 @@ let price_of_recipe () =
 let rec create_recipe temp =
   let _ = Sys.command "clear" in
   let _ = print_weather temp in
-  ANSITerminal.(print_string [ cyan ] "\nStep 1: Create a Recipe for the Day\n");
+  ANSITerminal.(
+    print_string [ cyan ] "\nStep 1: Create a Recipe for the Day. \n");
+  print_string
+    "This will be how much of each ingredient you will include per cup of \
+     coffee.\n";
   let custom_recipe =
     {
       milk = milk_in_recipe ();
