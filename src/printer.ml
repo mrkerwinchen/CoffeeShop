@@ -19,14 +19,15 @@ let print_recipe { milk; sugar; beans; price; temp } =
   print_endline (string_of_temp temp ^ " temperature")
 
 let print_weather temp =
-  print_string "╔═════════════════════════════════════════════════════╗\n";
+  let offset = temp |> offset_temp in
+  print_string "╔═══════════════════════════════════════════════════════╗\n";
   print_endline
     ("║ Temperature today: "
     ^ (temp |> round_2 |> string_of_float)
     ^ " degrees F | "
     ^ (temp |> fahrenheit_to_celsius |> round_2 |> string_of_float)
-    ^ " degrees C ║");
-  print_string "╚═════════════════════════════════════════════════════╝"
+    ^ " degrees C" ^ offset ^ " ║");
+  print_string "╚═══════════════════════════════════════════════════════╝"
 
 let string_of_ai_name (ai_state : ai_state) : string =
   let ai_level = ai_state.ai in

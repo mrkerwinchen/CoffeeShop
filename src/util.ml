@@ -50,3 +50,16 @@ let round_n n f =
 let round_2 = round_n 2
 
 let sum_arr arr = Array.fold_left ( +. ) 0. arr
+
+let rep_string s n =
+  let rec rep_string_tr s n ans =
+    if n = 0 then ans else rep_string_tr s (n - 1) (ans ^ s)
+  in
+  rep_string_tr s n ""
+
+let offset_temp temp =
+  let c_temp = temp |> fahrenheit_to_celsius |> round_2 in
+  let f_temp = temp |> round_2 in
+  let total_temp_str = string_of_float f_temp ^ string_of_float c_temp in
+  let total_len = String.length total_temp_str in
+  rep_string " " (11 - total_len)
