@@ -6,7 +6,7 @@ open Customers
 open Pre_day_functions
 open Start_day_functions
 open Report_plot
-open Ai
+open Bot
 open Util
 
 let initialize_state () =
@@ -99,8 +99,9 @@ let rec start_game ai_state state =
 
 let rec set_difficulty () =
   print_endline
-    "Type a number 1 to 3 for the difficulty of the Ai with 3 being most \
-     difficult";
+    "Type a number 1 to 3 for the difficulty of the bot with 3 being most \
+     difficult\n\
+     [1: Silly Sam; 2: Modest Missy; 3: Gifted Grandma]";
   match read_line () with
   | cmd when cmd = "quit" -> raise (Quit "Thanks for Playing")
   | number -> (

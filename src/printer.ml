@@ -1,5 +1,5 @@
 open State
-open Ai
+open Bot
 open Util
 
 let string_of_temp t = match t with Hot -> "hot" | Cold -> "cold"

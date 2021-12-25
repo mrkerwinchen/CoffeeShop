@@ -1,7 +1,7 @@
 open OUnit2
 open Game
 open State
-open Ai
+open Bot
 
 let coffee1 = { milk = 1; sugar = 2; beans = 3; price = 4.3; temp = Hot }
 

@@ -16,3 +16,7 @@ let rnorm_std () =
   cos (2. *. Float.pi *. runif_std ()) *. sqrt (-2. *. log (runif_std ()))
 
 let rnorm ~mu ~sigma = mu +. (sigma *. rnorm_std ())
+
+let splitdist ~d1 ~p1 ~d2 ~p2 =
+  let p = runif_std () in
+  if p < p1 then d1 else d2

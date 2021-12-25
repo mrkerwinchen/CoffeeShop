@@ -1,7 +1,7 @@
 open State
 open Matplotlib
 open Util
-open Ai
+open Bot
 open Printer
 
 let make_x_axis (revenue_arr : float array) =
