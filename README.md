@@ -20,7 +20,7 @@ Example revenue report generated at the end of the day:
 * Customers generally prefer 0 to 4 units each of sugar, milk, and beans in their coffee 
 * Customers generally will pay $2 to $5 for their cup of coffee
 * Customers generally prefer hot coffee on colder days and cold coffee on hotter days 
-* If it's too cold or too hot that day, less customers will come by your coffee shop (but those who do come may be wiling to pay more!)
+* If it's too cold or too hot that day, less customers will come by your coffee shop (but those who do come may be willing to pay more!)
 * Customer preference parameters are generated from different probability distributions; the above doesn't apply to all customers and customers will change from day to day!
 
 ### Installation and Gameplay
